@@ -1,0 +1,10 @@
+const express = require('express');
+const Settings = require('../models/Settings');
+const Message = require('../models/Message');
+const NewsletterSubscriber = require('../models/NewsletterSubscriber');
+const router = express.Router();
+router.get('/settings', async (req, res) => res.json(await Settings.findOne({ key: 'main' }) || {}));
+router.put('/settings', require('../middleware/auth').protect, require('../middleware/auth').adminOnly, async (req, res) => res.json(await Settings.findOneAndUpdate({ key: 'main' }, req.body, { upsert: true, new: true })));
+router.post('/contact', async (req, res) => { const message = await Message.create(req.body); res.status(201).json({ message: 'تم إرسال رسالتك بنجاح', id: message._id }); });
+router.post('/newsletter', async (req, res) => { if (!req.body.email) return res.status(400).json({ message: 'Email required' }); await NewsletterSubscriber.updateOne({ email: req.body.email }, { email: req.body.email }, { upsert: true }); res.status(201).json({ message: 'تم الاشتراك بنجاح' }); });
+module.exports = router;

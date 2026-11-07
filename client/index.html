@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>KATANA PARFUM | اكتشف عطرك المميز</title>
+  <meta name="description" content="عطور مختارة بعناية لتمنحك حضورًا لا يُنسى.">
+  <meta property="og:title" content="KATANA PARFUM">
+  <meta property="og:description" content="Your Signature. Your Scent.">
+  <link rel="stylesheet" href="/client/css/style.css">
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+  <div class="announcement">توصيل مجاني داخل المغرب للطلبات فوق 300 DH <span>·</span> Your Signature. Your Scent.</div>
+  <header class="site-header">
+    <a class="brand" href="/" aria-label="KATANA PARFUM home"><span class="brand-mark">K</span><span>KATANA <small>PARFUM</small></span></a>
+    <nav aria-label="التنقل الرئيسي"><a href="#shop">المتجر</a><a href="#finder">اكتشف عطرك</a><a href="#story">قصتنا</a><a href="#contact">تواصل معنا</a></nav>
+    <div class="header-actions">
+      <button class="icon-btn" id="langBtn" aria-label="تغيير اللغة"><i data-lucide="languages"></i><span class="sr-only">FR</span></button>
+      <button class="icon-btn" id="searchBtn" aria-label="البحث"><i data-lucide="search"></i></button>
+      <button class="icon-btn" id="accountBtn" aria-label="حسابي"><i data-lucide="user-round"></i></button>
+      <button class="cart-btn" id="cartBtn" aria-label="فتح السلة"><i data-lucide="shopping-bag"></i> السلة <b id="cartCount">0</b></button>
+      <button class="menu-btn" id="menuBtn" aria-label="القائمة"><i data-lucide="menu"></i></button>
+    </div>
+  </header>
+  <main>
+    <section class="hero"><div class="hero-copy"><p class="eyebrow">KATANA PARFUM · MOROCCO</p><h1 id="heroTitle">اكتشف عطرك المميز</h1><p id="heroDescription">عطور مختارة بعناية لتمنحك حضورًا لا يُنسى.</p><div class="hero-actions"><a class="button button-gold" href="#shop">اكتشف المجموعة <i data-lucide="arrow-left"></i></a><button class="button button-ghost" id="finderHero">اعثر على عطرك <i data-lucide="sparkles"></i></button></div><div class="hero-proof"><strong>01</strong><span>عطور فاخرة<br>مصممة لحضورك</span></div></div><div class="hero-art"><div class="hero-bottle"><span>KATANA<br><small>PARFUM</small></span></div><div class="hero-caption">SIGNATURE<br><b>COLLECTION</b></div></div></section>
+    <section class="category-strip" aria-label="الفئات"><div><span>01</span><b>عطور رجالية</b><small>ثقة لا تُنسى</small></div><div><span>02</span><b>عطور نسائية</b><small>أناقة ناعمة</small></div><div><span>03</span><b>Unisex</b><small>هوية بلا حدود</small></div><div><span>04</span><b>Premium</b><small>مختارات استثنائية</small></div></section>
+    <section class="section" id="shop"><div class="section-heading"><div><p class="eyebrow">THE EDIT</p><h2>اختياراتنا لك</h2></div><a href="#shop" class="text-link">كل المنتجات <i data-lucide="arrow-left"></i></a></div><div class="shop-toolbar"><div class="search-field"><i data-lucide="search"></i><input id="searchInput" placeholder="ابحث عن اسم، نوتة أو عائلة عطرية..." autocomplete="off"><div id="suggestions" class="suggestions"></div></div><select id="sortSelect" aria-label="ترتيب المنتجات"><option value="newest">الأحدث</option><option value="best">الأكثر مبيعًا</option><option value="low">السعر: الأقل أولًا</option><option value="high">السعر: الأعلى أولًا</option><option value="rated">الأعلى تقييمًا</option></select><button class="filter-toggle" id="filterToggle">الفلاتر <i data-lucide="sliders-horizontal"></i></button></div><div class="filters" id="filters"><button class="filter-chip active" data-gender="">الكل</button><button class="filter-chip" data-gender="Men">رجالي</button><button class="filter-chip" data-gender="Women">نسائي</button><button class="filter-chip" data-gender="Unisex">Unisex</button><label>حتى <input id="maxPrice" type="number" placeholder="السعر" min="0"> DH</label></div><div id="productsGrid" class="product-grid"><div class="loading-line"></div><div class="loading-line"></div><div class="loading-line"></div></div><div id="emptyState" class="empty-state" hidden>لم نجد منتجات مطابقة لبحثك.</div></section>
+    <section class="finder" id="finder"><div><p class="eyebrow">FIND YOUR SCENT</p><h2>أي حضور<br>يشبهك؟</h2><p>أجب عن ثلاثة أسئلة لنقترح لك عطرًا يليق بك.</p></div><div class="finder-form"><label>أبحث عن عطر <select id="finderGender"><option value="">لكل الأجناس</option><option value="Men">رجالي</option><option value="Women">نسائي</option><option value="Unisex">Unisex</option></select></label><label>مزاجك اليوم <select id="finderStyle"><option value="">أي أسلوب</option><option value="Fresh">Fresh</option><option value="Sweet">Sweet</option><option value="Woody">Woody</option><option value="Floral">Floral</option><option value="Oriental">Oriental</option></select></label><label>ميزانيتك <select id="finderBudget"><option value="">أي ميزانية</option><option value="100">أقل من 100 DH</option><option value="200">100 - 200 DH</option><option value="300">200 - 300 DH</option><option value="99999">300+ DH</option></select></label><button class="button button-gold" id="findBtn">اكتشف عطري <i data-lucide="arrow-left"></i></button></div></section>
+    <section class="story" id="story"><div class="story-image"></div><div class="story-copy"><p class="eyebrow">THE KATANA CODE</p><h2>العطر ليس تفصيلًا.<br><em>إنه توقيعك.</em></h2><p>نؤمن أن أفضل عطر هو الذي يصبح جزءًا من ذاكرتك. نختار كل تركيبة بعناية، من أول نوتة إلى آخر أثر.</p><a class="text-link" href="#contact">تعرف على قصتنا <i data-lucide="arrow-left"></i></a></div></section>
+    <section class="newsletter" id="contact"><div><p class="eyebrow">STAY IN THE KNOW</p><h2>كن أول من<br>يكتشف الجديد.</h2></div><form id="newsletterForm"><input type="email" required placeholder="بريدك الإلكتروني" aria-label="بريدك الإلكتروني"><button class="button button-gold">اشترك <i data-lucide="send"></i></button><small>باشتراكك، توافق على استقبال أخبار KATANA PARFUM.</small></form></section>
+  </main>
+  <footer><div class="footer-brand"><a class="brand" href="/" aria-label="KATANA PARFUM home"><span class="brand-mark">K</span><span>KATANA <small>PARFUM</small></span></a><p>Your Signature. Your Scent.</p></div><div><h4>اكتشف</h4><a href="#shop">كل العطور</a><a href="#finder">مساعد العطور</a><a href="#shop">العروض</a></div><div><h4>المساعدة</h4><a href="#contact">تواصل معنا</a><a href="/client/account.html">حسابي</a><a href="/admin/dashboard.html">الإدارة</a></div><div><h4>تابعنا</h4><a href="https://www.instagram.com/katanaparfum/" target="_blank" rel="noopener noreferrer">Instagram</a><a href="https://www.facebook.com/katanaparfum/" target="_blank" rel="noopener noreferrer">Facebook</a><a href="https://wa.me/212778379244" target="_blank" rel="noopener noreferrer">WhatsApp</a></div></footer>
+  <div class="modal" id="productModal" hidden><div class="modal-backdrop"></div><div class="modal-card" id="modalContent"></div></div><div class="drawer" id="cartDrawer"><div class="drawer-head"><h3>سلتك</h3><button id="closeCart" aria-label="إغلاق السلة"><i data-lucide="x"></i></button></div><div id="cartItems"></div><div class="cart-total"><span>المجموع</span><strong id="cartTotal">0 DH</strong></div><button class="button button-gold full" id="checkoutBtn">إتمام الطلب <i data-lucide="arrow-left"></i></button></div><div class="toast" id="toast"></div><a class="whatsapp" href="https://wa.me/212778379244" aria-label="تواصل عبر WhatsApp"><i data-lucide="message-circle"></i></a>
+  <script src="/client/js/app.js"></script><script>lucide.createIcons();</script>
+</body>
+</html>
