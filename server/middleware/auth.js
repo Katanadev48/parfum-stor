@@ -1,8 +1,10 @@
 const jwt = require('jsonwebtoken');
 
 function protect(req, res, next) {
-  if (!process.env.JWT_SECRET) {
-    return next(new Error('JWT_SECRET is required'));
+  if (typeof process.env.JWT_SECRET !== 'string' || process.env.JWT_SECRET.length < 32) {
+    return res.status(503).json({
+      message: 'إعداد JWT_SECRET ناقص أو قصير في إعدادات Vercel.'
+    });
   }
   const token = req.headers.authorization?.startsWith('Bearer ')
     ? req.headers.authorization.slice(7)

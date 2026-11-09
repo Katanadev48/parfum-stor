@@ -6,14 +6,22 @@ const { protect } = require('../middleware/auth');
 const router = express.Router();
 const digest = value => crypto.createHash('sha256').update(value).digest();
 
-router.post('/admin-login', (req, res, next) => {
+router.post('/admin-login', (req, res) => {
   const adminEmail = process.env.ADMIN_EMAIL?.trim().toLowerCase();
   const adminPassword = process.env.ADMIN_PASSWORD;
   const jwtSecret = process.env.JWT_SECRET;
-  if (typeof adminEmail !== 'string' || !adminEmail ||
-      typeof adminPassword !== 'string' || adminPassword.length < 12 ||
-      typeof jwtSecret !== 'string' || jwtSecret.length < 32) {
-    return next(new Error('Set ADMIN_EMAIL, an ADMIN_PASSWORD of at least 12 characters, and a JWT_SECRET of at least 32 characters'));
+  const missingSettings = [];
+  if (!adminEmail) missingSettings.push('ADMIN_EMAIL');
+  if (typeof adminPassword !== 'string' || adminPassword.length < 12) {
+    missingSettings.push('ADMIN_PASSWORD (12 characters minimum)');
+  }
+  if (typeof jwtSecret !== 'string' || jwtSecret.length < 32) {
+    missingSettings.push('JWT_SECRET (32 characters minimum)');
+  }
+  if (missingSettings.length) {
+    return res.status(503).json({
+      message: `إعدادات دخول الإدارة ناقصة في Vercel: ${missingSettings.join(', ')}`
+    });
   }
 
   const email = typeof req.body?.email === 'string' ? req.body.email.trim().toLowerCase() : '';

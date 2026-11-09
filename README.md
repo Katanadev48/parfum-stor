@@ -24,7 +24,8 @@ The admin login is at `/admin/login.html`. Keep all credentials in server enviro
    - `ADMIN_PASSWORD`: a strong private password (12+ characters).
    - `JWT_SECRET`: a separate long random secret (32+ characters).
    - `GOOGLE_SHEETS_KEY`: the same secret as Apps Script's `API_KEY`.
-6. Redeploy Vercel. Submit a test order and verify that it appears in the spreadsheet and at `/admin/dashboard.html`.
+   Select **Production** for the public store; also select **Preview** only if testing a protected preview deployment.
+6. Redeploy Vercel after setting or changing environment variables. Submit a test order and verify that it appears in the spreadsheet and at `/admin/dashboard.html`.
 
 Orders include the customer's name, phone, city, delivery address, products, total, status, and optional delivery note. Admins can update an order's status in the dashboard. Customers can submit without an account; checkout saves the order first and then opens WhatsApp with the order details.
 
@@ -39,4 +40,4 @@ The WhatsApp business number is configured in `client/checkout.html`, `server/ap
 
 ## Vercel deployment
 
-Connect the repository to Vercel with the project root as its Root Directory. Configure the environment variables above in **Project Settings → Environment Variables** and redeploy after changes. No MongoDB account or connection string is needed.
+Connect the repository to Vercel with the project root (the directory containing `vercel.json` and `package.json`) as its Root Directory. Configure the environment variables above in **Project Settings → Environment Variables** and redeploy after changes. No MongoDB account or connection string is needed.
