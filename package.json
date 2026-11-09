@@ -2,15 +2,11 @@
   "name": "katana-parfum",
   "version": "1.0.0",
   "private": true,
-  "description": "Production-ready luxury perfume store for Morocco",
+  "description": "Database-free luxury perfume store for Morocco",
   "main": "server/server.js",
   "scripts": {
     "start": "node server/server.js",
-    "dev": "node --watch server/server.js",
-    "db:start": "docker compose up -d mongodb",
-    "db:stop": "docker compose stop mongodb",
-    "seed": "node server/seed.js",
-    "create-admin": "node server/create-admin.js"
+    "dev": "node --watch server/server.js"
   },
   "engines": { "node": ">=18" },
   "dependencies": {

@@ -21,7 +21,7 @@
       <button class="button button-gold" type="submit">دخول <span>←</span></button>
     </form>
     <p id="adminLoginMessage" role="alert" aria-live="polite"></p>
-    <a class="text-link" href="/login.html">العودة إلى تسجيل دخول العملاء</a>
+    <a class="text-link" href="/">العودة إلى المتجر</a>
   </main>
   <script>
     document.getElementById('adminLoginForm').onsubmit = async event => {
@@ -33,13 +33,15 @@
       message.textContent = 'جاري تسجيل الدخول...';
 
       try {
-        const response = await fetch('/api/auth/login', {
+        const response = await fetch('/api/auth/admin-login', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(Object.fromEntries(new FormData(form)))
         });
-        const data = await response.json();
-        if (!response.ok) throw new Error(data.message || 'تعذر تسجيل الدخول');
+        const contentType = response.headers.get('content-type') || '';
+        const data = contentType.includes('application/json') ? await response.json() : null;
+        if (!response.ok) throw new Error(data?.message || `تعذر تسجيل الدخول (HTTP ${response.status})`);
+        if (!data?.user || !data?.token) throw new Error('استجابة الخادم غير مكتملة. حاول مرة أخرى لاحقًا.');
         if (data.user.role !== 'admin') throw new Error('هذا الحساب ليس لديه صلاحيات الإدارة');
 
         localStorage.setItem('katana-token', data.token);

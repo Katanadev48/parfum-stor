@@ -3,102 +3,15 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>حسابي | KATANA PARFUM</title>
+  <meta http-equiv="refresh" content="0;url=/">
+  <title>حساب الزبون غير متاح | KATANA PARFUM</title>
   <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
   <main class="section">
-    <a class="brand" href="/">
-      <span class="brand-mark">K</span>
-      <span>KATANA <small>PARFUM</small></span>
-    </a>
-    <div class="section-heading" style="margin-top:70px">
-      <div><p class="eyebrow">MY KATANA</p><h2>حسابي</h2></div>
-    </div>
-    <section id="accountContent" aria-live="polite">جارٍ تحميل حسابك...</section>
+    <h1>ما محتاجش حساب باش تطلب</h1>
+    <p>الطلب كيتدار مباشرة عبر واتساب.</p>
+    <a class="button button-gold" href="/">العودة للمتجر</a>
   </main>
-  <script>
-    const content = document.getElementById('accountContent');
-
-    async function loadAccount() {
-      const token = localStorage.getItem('katana-token');
-      if (!token) {
-        location.href = '/login.html';
-        return;
-      }
-
-      try {
-        const headers = { Authorization: `Bearer ${token}` };
-        const [accountResponse, ordersResponse] = await Promise.all([
-          fetch('/api/auth/me', { headers }),
-          fetch('/api/orders', { headers })
-        ]);
-        if (accountResponse.status === 401 || ordersResponse.status === 401) {
-          localStorage.removeItem('katana-token');
-          localStorage.removeItem('katana-user');
-          location.href = '/login.html';
-          return;
-        }
-        if (!accountResponse.ok || !ordersResponse.ok) {
-          throw new Error('تعذر تحميل بيانات الحساب والطلبات.');
-        }
-
-        const [{ user }, orders] = await Promise.all([
-          accountResponse.json(),
-          ordersResponse.json()
-        ]);
-        content.replaceChildren();
-
-        const name = document.createElement('h3');
-        name.textContent = user.name;
-        const email = document.createElement('p');
-        email.textContent = user.email;
-        const orderHeading = document.createElement('h3');
-        orderHeading.textContent = 'طلباتي';
-        const orderList = document.createElement('div');
-
-        if (orders.length === 0) {
-          const empty = document.createElement('p');
-          empty.textContent = 'لا توجد طلبات بعد.';
-          orderList.append(empty);
-        } else {
-          for (const order of orders) {
-            const card = document.createElement('article');
-            card.className = 'category-strip';
-            const summary = document.createElement('div');
-            const id = document.createElement('b');
-            id.textContent = order.orderId;
-            const status = document.createElement('small');
-            status.textContent = `الحالة: ${order.status}`;
-            summary.append(id, status);
-            const amount = document.createElement('strong');
-            amount.textContent = `${Number(order.total).toLocaleString('fr-MA')} DH`;
-            card.append(summary, amount);
-            orderList.append(card);
-          }
-        }
-
-        const shopLink = document.createElement('a');
-        shopLink.className = 'button button-gold';
-        shopLink.href = '/#shop';
-        shopLink.textContent = 'متابعة التسوق';
-        const logoutButton = document.createElement('button');
-        logoutButton.className = 'button button-ghost';
-        logoutButton.textContent = 'تسجيل الخروج';
-        logoutButton.onclick = () => {
-          localStorage.removeItem('katana-token');
-          localStorage.removeItem('katana-user');
-          location.href = '/';
-        };
-        content.append(name, email, orderHeading, orderList, shopLink, logoutButton);
-      } catch (error) {
-        content.textContent = error instanceof TypeError
-          ? 'تعذر الاتصال بالخادم. حاول مرة أخرى لاحقًا.'
-          : error.message;
-      }
-    }
-
-    loadAccount();
-  </script>
 </body>
 </html>

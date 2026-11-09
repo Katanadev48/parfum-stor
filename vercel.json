@@ -1,8 +1,11 @@
 {
+  "redirects": [
+    { "source": "/login.html", "destination": "/admin/login.html", "permanent": false },
+    { "source": "/register.html", "destination": "/", "permanent": false },
+    { "source": "/account.html", "destination": "/", "permanent": false }
+  ],
   "rewrites": [
-    { "source": "/login.html", "destination": "/client/login.html" },
-    { "source": "/register.html", "destination": "/client/register.html" },
-    { "source": "/account.html", "destination": "/client/account.html" },
+    { "source": "/api/:path*", "destination": "/api/index?path=:path*" },
     { "source": "/checkout.html", "destination": "/client/checkout.html" },
     { "source": "/cart.html", "destination": "/client/cart.html" },
     { "source": "/product.html", "destination": "/client/product.html" },

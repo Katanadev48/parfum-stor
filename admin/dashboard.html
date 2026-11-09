@@ -7,69 +7,121 @@
   <link rel="stylesheet" href="/client/css/style.css">
   <style>
     body{background:#f7f6f2}
-    .admin-shell{max-width:1440px;min-height:100vh;margin:auto;padding:30px 42px 56px}
-    .admin-top{display:flex;justify-content:space-between;align-items:center;gap:20px;margin-bottom:38px;padding:17px 22px;background:#fff;border:1px solid #eeece6;border-radius:14px}
-    .admin-top .brand{flex-shrink:0}
-    .admin-actions{display:flex;gap:10px;align-items:center}
-    .admin-button{display:inline-flex;justify-content:center;align-items:center;min-height:42px;border:1px solid var(--line);border-radius:7px;padding:10px 16px;font-size:12px;transition:background .2s,border-color .2s,color .2s,transform .2s}
-    .admin-button:hover{border-color:var(--gold);transform:translateY(-1px)}
-    .admin-button.gold{background:var(--gold);border-color:var(--gold);color:#fff}
-    .admin-button.gold:hover{background:#ad891c}
-    .admin-shell>.section-heading{margin:0 0 22px}
-    .admin-shell>.section-heading h1{margin-bottom:0;font-size:clamp(30px,4vw,42px)}
-    .admin-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:15px;margin-bottom:30px}
-    .admin-stat{position:relative;overflow:hidden;min-height:112px;border:1px solid #eeece6;border-radius:12px;padding:20px 22px;background:#fff;box-shadow:0 4px 16px rgba(31,27,18,.025);transition:transform .2s,box-shadow .2s}
-    .admin-stat:hover{transform:translateY(-2px);box-shadow:0 9px 22px rgba(31,27,18,.07)}
-    .admin-stat:before{position:absolute;inset:0 0 0 auto;width:3px;background:var(--gold);content:""}
-    .admin-stat small{color:var(--muted);font-size:11px}
-    .admin-stat strong{display:block;overflow:hidden;margin-top:9px;color:var(--ink);font:500 30px var(--serif);text-overflow:ellipsis;white-space:nowrap}
-    .admin-stat:nth-child(4) strong{color:#9a7615}
-    .admin-layout{display:grid;grid-template-columns:minmax(280px,340px) minmax(0,1fr);align-items:start;gap:20px}
-    .admin-panel{min-width:0;border:1px solid #eeece6;border-radius:12px;padding:24px;background:#fff;box-shadow:0 4px 16px rgba(31,27,18,.025)}
-    .admin-panel h3{display:flex;align-items:baseline;gap:9px;margin:0 0 20px;font:500 25px var(--serif)}
-    .admin-panel h3 small{color:var(--muted);font:400 12px var(--sans)}
-    .admin-form{display:grid;gap:13px}
-    .admin-form label{font-size:11px;color:#56524c}
-    .admin-form input,.admin-form select,.admin-form textarea{display:block;width:100%;border:1px solid var(--line);border-radius:6px;padding:11px 12px;margin-top:6px;background:#fff;color:var(--ink);font:inherit;outline:0;transition:border-color .2s,box-shadow .2s}
-    .admin-form textarea{resize:vertical}
-    .admin-form input:focus,.admin-form select:focus,.admin-form textarea:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(201,162,39,.12)}
-    .admin-form .admin-button{width:100%;margin-top:3px}
+    .admin-shell{max-width:1100px;min-height:100vh;margin:auto;padding:30px 24px 56px}
+    .admin-top,.admin-panel{border:1px solid #eeece6;border-radius:12px;padding:20px;background:#fff}
+    .admin-top{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-bottom:32px}
+    .admin-actions{display:flex;gap:10px}
+    .admin-button{display:inline-flex;justify-content:center;align-items:center;min-height:42px;border:1px solid var(--line);border-radius:7px;padding:10px 16px;font-size:12px}
+    .admin-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin:20px 0}
+    .admin-stat{border:1px solid #eeece6;border-radius:10px;padding:18px;background:#fff}
+    .admin-stat small{color:var(--muted)}
+    .admin-stat strong{display:block;margin-top:8px;font-size:28px}
+    .admin-panel{margin-top:16px}
+    .notice{line-height:1.9;color:#56524c}
     .admin-table-wrap{overflow-x:auto}
     .admin-table{width:100%;border-collapse:collapse}
-    .admin-table th,.admin-table td{text-align:right;padding:14px 12px;border-bottom:1px solid #f0eee9;font-size:12px}
-    .admin-table th{color:var(--muted);font-size:11px;font-weight:500;white-space:nowrap}
-    .admin-table tbody tr:last-child td{border-bottom:0}
-    .admin-table tbody tr:hover{background:#fcfbf8}
-    .admin-table td strong{font-family:var(--serif);font-size:18px}
-    .admin-table button{border:1px solid #f0d9d5;border-radius:5px;padding:7px 10px;color:#a23b31;font-size:11px;transition:background .2s}
-    .admin-table button:hover{background:#fff3f1}
-    .admin-message{min-height:20px;margin:3px 0 0;font-size:12px;color:#8a6b14}
-    @media(max-width:900px){.admin-shell{padding:24px 22px 40px}.admin-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.admin-layout{grid-template-columns:minmax(250px,.8fr) minmax(0,1.2fr)}}
-    @media(max-width:680px){.admin-shell{padding:16px 14px 32px}.admin-top{align-items:flex-start;flex-direction:column;margin-bottom:28px;padding:15px}.admin-actions{width:100%}.admin-actions>*{flex:1}.admin-grid{gap:10px;margin-bottom:18px}.admin-stat{min-height:98px;padding:16px}.admin-stat strong{font-size:25px}.admin-layout{grid-template-columns:1fr;gap:14px}.admin-panel{padding:18px}.admin-panel h3{font-size:23px}.admin-table th,.admin-table td{padding:12px 9px}}
+    .admin-table th,.admin-table td{text-align:right;padding:13px 10px;border-bottom:1px solid #f0eee9;font-size:12px}
+    .admin-table th{color:var(--muted);white-space:nowrap}
+    @media(max-width:600px){.admin-shell{padding:16px 12px}.admin-top{align-items:flex-start;flex-direction:column}.admin-grid{gap:8px}.admin-stat{padding:14px}}
   </style>
 </head>
 <body>
-  <div class="admin-shell">
-    <header class="admin-top"><a class="brand" href="/"><span class="brand-mark">K</span><span>KATANA <small>ADMIN</small></span></a><div class="admin-actions"><a class="admin-button" href="/">عرض المتجر</a><button class="admin-button" id="logoutButton">تسجيل الخروج</button></div></header>
+  <main class="admin-shell">
+    <header class="admin-top">
+      <a class="brand" href="/"><span class="brand-mark">K</span><span>KATANA <small>ADMIN</small></span></a>
+      <div class="admin-actions">
+        <a class="admin-button" href="/">عرض المتجر</a>
+        <button class="admin-button" id="logoutButton" type="button">تسجيل الخروج</button>
+      </div>
+    </header>
     <div class="section-heading"><div><p class="eyebrow">CONTROL ROOM</p><h1>لوحة الإدارة</h1></div></div>
-    <section class="admin-grid" aria-label="الإحصاءات"><div class="admin-stat"><small>إجمالي المنتجات</small><strong id="statProducts">--</strong></div><div class="admin-stat"><small>إجمالي الطلبات</small><strong id="statOrders">--</strong></div><div class="admin-stat"><small>إجمالي العملاء</small><strong id="statCustomers">--</strong></div><div class="admin-stat"><small>الإيرادات</small><strong id="statRevenue">-- DH</strong></div><div class="admin-stat"><small>طلبات قيد الانتظار</small><strong id="statPending">--</strong></div><div class="admin-stat"><small>طلبات مكتملة</small><strong id="statDelivered">--</strong></div><div class="admin-stat"><small>مخزون منخفض</small><strong id="statLowStock">--</strong></div></section>
-    <div class="admin-layout">
-      <section class="admin-panel"><h3>إضافة منتج</h3><form id="productForm" class="admin-form"><label>اسم المنتج<input name="name" required></label><label>الفئة<input name="category" value="Signature Collection" required></label><label>الجنس<select name="gender"><option>Unisex</option><option>Men</option><option>Women</option></select></label><label>السعر DH<input name="price" type="number" min="0" required></label><label>المخزون<input name="stock" type="number" min="0" value="10" required></label><label>الحجم<input name="volume" value="50ml"></label><label>رابط الصورة<input name="image" type="url"></label><label>الوصف<textarea name="description" rows="3"></textarea></label><button class="admin-button gold" type="submit">حفظ المنتج</button><p id="formMessage" class="admin-message"></p></form></section>
-      <section class="admin-panel"><h3>المنتجات <small id="productTotal"></small></h3><div class="admin-table-wrap"><table class="admin-table"><thead><tr><th>المنتج</th><th>الفئة</th><th>السعر</th><th>المخزون</th><th>إجراء</th></tr></thead><tbody id="productRows"><tr><td colspan="5">جاري التحميل...</td></tr></tbody></table></div></section>
-    </div>
-  </div>
+    <section class="admin-grid" aria-label="المنتجات">
+      <div class="admin-stat"><small>المنتجات المتاحة</small><strong id="statProducts">--</strong></div>
+      <div class="admin-stat"><small>إدارة الطلبات</small><strong>واتساب</strong></div>
+    </section>
+    <section class="admin-panel">
+      <p class="notice">الطلبات كتوصل مباشرة لواتساب الإدارة، وما كتتخزنش فالموقع. باش تزيد أو تبدل منتج، عدّل الملف <code>server/data/products.json</code> فالمشروع ثم أعد النشر.</p>
+    </section>
+    <section class="admin-panel">
+      <h2>المنتجات</h2>
+      <div class="admin-table-wrap">
+        <table class="admin-table">
+          <thead><tr><th>المنتج</th><th>الفئة</th><th>السعر</th><th>المخزون</th></tr></thead>
+          <tbody id="productRows"><tr><td colspan="4">جاري التحميل...</td></tr></tbody>
+        </table>
+      </div>
+      <p id="dashboardMessage" role="status" aria-live="polite"></p>
+    </section>
+  </main>
   <script>
     const token = localStorage.getItem('katana-token');
-    const headers = { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' };
+    const dashboardMessage = document.getElementById('dashboardMessage');
     const money = value => `${Number(value || 0).toLocaleString('fr-MA')} DH`;
-    const request = async (url, options = {}) => { const response = await fetch(url, { ...options, headers: { ...headers, ...(options.headers || {}) } }); const data = await response.json(); if (!response.ok) { const error = new Error(data.message || 'تعذر تنفيذ العملية'); error.status = response.status; throw error; } return data; };
-    async function guard() { if (!token) return location.href = '/admin/login.html'; try { const data = await request('/api/auth/me'); if (data.user.role !== 'admin') { localStorage.removeItem('katana-token'); localStorage.removeItem('katana-user'); return location.href = '/admin/login.html'; } } catch (error) { if (error.status === 401 || error.status === 403) { localStorage.removeItem('katana-token'); localStorage.removeItem('katana-user'); return location.href = '/admin/login.html'; } throw error; } }
-    async function loadSummary() { const data = await request('/api/admin/summary'); document.getElementById('statProducts').textContent = data.products; document.getElementById('statOrders').textContent = data.orders; document.getElementById('statCustomers').textContent = data.customers; document.getElementById('statRevenue').textContent = money(data.revenue); document.getElementById('statPending').textContent = data.pending; document.getElementById('statDelivered').textContent = data.delivered; document.getElementById('statLowStock').textContent = data.lowStock; }
-    async function loadProducts() { const data = await request('/api/products?limit=100'); document.getElementById('productTotal').textContent = `(${data.total})`; const rows = document.getElementById('productRows'); rows.replaceChildren(); if (!data.products.length) { const row = document.createElement('tr'); const cell = document.createElement('td'); cell.colSpan = 5; cell.textContent = 'لا توجد منتجات'; row.append(cell); rows.append(row); return; } data.products.forEach(product => { const row = document.createElement('tr'); const nameCell = document.createElement('td'); const name = document.createElement('strong'); name.textContent = product.name; nameCell.append(name); const categoryCell = document.createElement('td'); categoryCell.textContent = product.category; const priceCell = document.createElement('td'); priceCell.textContent = money(product.price); const stockCell = document.createElement('td'); stockCell.textContent = product.stock; const actionCell = document.createElement('td'); const button = document.createElement('button'); button.type = 'button'; button.textContent = 'أرشفة'; button.onclick = () => archiveProduct(product._id); actionCell.append(button); row.append(nameCell, categoryCell, priceCell, stockCell, actionCell); rows.append(row); }); }
-    async function archiveProduct(id) { if (!confirm('هل تريد أرشفة هذا المنتج؟')) return; try { await request(`/api/products/${id}`, { method: 'DELETE' }); await Promise.all([loadSummary(), loadProducts()]); } catch (error) { alert(error.message); } }
-    document.getElementById('productForm').onsubmit = async event => { event.preventDefault(); const form = new FormData(event.target); const data = Object.fromEntries(form); data.price = Number(data.price); data.stock = Number(data.stock); data.images = data.image ? [data.image] : []; delete data.image; try { await request('/api/products', { method: 'POST', body: JSON.stringify(data) }); event.target.reset(); document.getElementById('formMessage').textContent = 'تم حفظ المنتج بنجاح'; await Promise.all([loadSummary(), loadProducts()]); } catch (error) { document.getElementById('formMessage').textContent = error.message; } };
-    document.getElementById('logoutButton').onclick = () => { localStorage.removeItem('katana-token'); localStorage.removeItem('katana-user'); location.href = '/admin/login.html'; };
-    guard().then(() => Promise.all([loadSummary(), loadProducts()])).catch(error => { document.getElementById('formMessage').textContent = error.message; });
+
+    async function request(url) {
+      const response = await fetch(url, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      const contentType = response.headers.get('content-type') || '';
+      const data = contentType.includes('application/json') ? await response.json() : null;
+      if (!response.ok) {
+        const error = new Error(data?.message || `تعذر تنفيذ العملية (HTTP ${response.status})`);
+        error.status = response.status;
+        throw error;
+      }
+      return data;
+    }
+
+    async function loadDashboard() {
+      if (!token) {
+        location.href = '/admin/login.html';
+        return;
+      }
+
+      try {
+        const [{ user }, catalog] = await Promise.all([
+          request('/api/auth/me'),
+          request('/api/products?limit=100')
+        ]);
+        if (user.role !== 'admin') {
+          location.href = '/admin/login.html';
+          return;
+        }
+
+        document.getElementById('statProducts').textContent = catalog.total;
+        const rows = document.getElementById('productRows');
+        rows.replaceChildren();
+        if (!catalog.products.length) {
+          const row = rows.insertRow();
+          const cell = row.insertCell();
+          cell.colSpan = 4;
+          cell.textContent = 'لا توجد منتجات';
+          return;
+        }
+        for (const product of catalog.products) {
+          const row = rows.insertRow();
+          row.insertCell().textContent = product.name;
+          row.insertCell().textContent = product.category;
+          row.insertCell().textContent = money(product.price);
+          row.insertCell().textContent = product.stock;
+        }
+      } catch (error) {
+        if (error.status === 401 || error.status === 403) {
+          localStorage.removeItem('katana-token');
+          localStorage.removeItem('katana-user');
+          location.href = '/admin/login.html';
+          return;
+        }
+        dashboardMessage.textContent = error.message;
+      }
+    }
+
+    document.getElementById('logoutButton').onclick = () => {
+      localStorage.removeItem('katana-token');
+      localStorage.removeItem('katana-user');
+      location.href = '/admin/login.html';
+    };
+    loadDashboard();
   </script>
 </body>
 </html>

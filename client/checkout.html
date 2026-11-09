@@ -7,7 +7,7 @@
   <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
-  <div class="section" style="max-width:800px">
+  <main class="section" style="max-width:800px">
     <a class="brand" href="/">
       <span class="brand-mark">K</span>
       <span>KATANA <small>PARFUM</small></span>
@@ -18,24 +18,32 @@
     <section id="orderSummary" class="empty-state" aria-live="polite"></section>
     <form id="checkoutForm" class="finder-form" style="color:#111">
       <label>الاسم الكامل<input name="name" autocomplete="name" maxlength="80" required></label>
-      <label>الهاتف<input name="phone" type="tel" autocomplete="tel" maxlength="30" required></label>
-      <label>البريد الإلكتروني<input name="email" type="email" autocomplete="email" maxlength="254"></label>
+      <label>رقم الهاتف<input name="phone" type="tel" autocomplete="tel" maxlength="30" required></label>
       <label>المدينة<input name="city" autocomplete="address-level2" maxlength="100" required></label>
-      <label style="grid-column:1/-1">العنوان<input name="address" autocomplete="street-address" maxlength="300" required></label>
-      <label style="grid-column:1/-1">ملاحظات إضافية<textarea name="notes" rows="4" maxlength="1000"></textarea></label>
-      <button class="button button-gold" type="submit">تأكيد الطلب بالدفع عند الاستلام <span>←</span></button>
+      <label style="grid-column:1/-1">العنوان بالتفصيل<input name="address" autocomplete="street-address" maxlength="300" required></label>
+      <label style="grid-column:1/-1">ملاحظة للتوصيل (اختياري)<textarea name="notes" rows="4" maxlength="1000" placeholder="مثال: النهار أو الوقت المناسب للتوصيل"></textarea></label>
+      <button class="button button-gold" type="submit">أرسل الطلب عبر واتساب <span>←</span></button>
     </form>
     <p id="checkoutMessage" role="status" aria-live="polite"></p>
-  </div>
+  </main>
   <script>
     const summary = document.getElementById('orderSummary');
     const checkoutForm = document.getElementById('checkoutForm');
     const checkoutMessage = document.getElementById('checkoutMessage');
     const money = amount => `${Number(amount || 0).toLocaleString('fr-MA')} DH`;
+    const whatsappNumber = '212778379244';
 
-    function renderSummary(items) {
+    let cart;
+    try {
+      cart = JSON.parse(localStorage.getItem('katana-cart') || '[]');
+      if (!Array.isArray(cart)) cart = [];
+    } catch {
+      cart = [];
+    }
+
+    function renderSummary() {
       summary.replaceChildren();
-      if (!items.length) {
+      if (!cart.length) {
         summary.textContent = 'سلتك فارغة حاليًا.';
         checkoutForm.querySelector('button[type="submit"]').disabled = true;
         return;
@@ -45,7 +53,7 @@
       heading.textContent = 'ملخص سلتك';
       const list = document.createElement('ul');
       let total = 0;
-      for (const item of items) {
+      for (const item of cart) {
         const quantity = Number(item.quantity) || 0;
         const price = Number(item.price) || 0;
         total += price * quantity;
@@ -58,47 +66,33 @@
       summary.append(heading, list, subtotal);
     }
 
-    let cart;
-    try {
-      cart = JSON.parse(localStorage.getItem('katana-cart') || '[]');
-      if (!Array.isArray(cart)) cart = [];
-    } catch {
-      cart = [];
-    }
-    renderSummary(cart);
+    renderSummary();
 
-    checkoutForm.onsubmit = async event => {
+    checkoutForm.onsubmit = event => {
       event.preventDefault();
-      const button = checkoutForm.querySelector('button[type="submit"]');
       if (!cart.length) return;
-      button.disabled = true;
-      checkoutMessage.textContent = 'جارٍ تأكيد طلبك...';
-      try {
-        const token = localStorage.getItem('katana-token');
-        const response = await fetch('/api/orders', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            ...(token ? { Authorization: `Bearer ${token}` } : {})
-          },
-          body: JSON.stringify({
-            items: cart.map(({ product, quantity }) => ({ product, quantity })),
-            customer: Object.fromEntries(new FormData(checkoutForm))
-          })
-        });
-        const order = await response.json();
-        if (!response.ok) throw new Error(order.message || 'تعذر تأكيد الطلب');
-        localStorage.removeItem('katana-cart');
-        cart = [];
-        renderSummary(cart);
-        checkoutForm.reset();
-        checkoutMessage.textContent = `تم تأكيد طلبك بنجاح: ${order.orderId}`;
-      } catch (error) {
-        checkoutMessage.textContent = error instanceof TypeError
-          ? 'تعذر الاتصال بالخادم. حاول مرة أخرى لاحقًا.'
-          : error.message;
-        button.disabled = false;
-      }
+
+      const customer = Object.fromEntries(new FormData(checkoutForm));
+      const total = cart.reduce(
+        (sum, item) => sum + (Number(item.price) || 0) * (Number(item.quantity) || 0),
+        0
+      );
+      const lines = [
+        'طلب جديد من KATANA PARFUM',
+        '',
+        ...cart.map(item => `- ${item.name} × ${item.quantity}: ${money(item.price * item.quantity)}`),
+        `المجموع التقديري: ${money(total)}`,
+        '',
+        `الاسم: ${customer.name}`,
+        `الهاتف: ${customer.phone}`,
+        `المدينة: ${customer.city}`,
+        `العنوان: ${customer.address}`
+      ];
+      if (customer.notes.trim()) lines.push(`ملاحظة للتوصيل: ${customer.notes.trim()}`);
+
+      const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(lines.join('\n'))}`;
+      window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
+      checkoutMessage.textContent = 'تأكد من إرسال الرسالة فواتساب باش يتأكد الطلب. الطلبات ما كتتحفظش فالموقع.';
     };
   </script>
 </body>

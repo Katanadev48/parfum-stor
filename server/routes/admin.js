@@ -1,27 +1,19 @@
 const express = require('express');
-const Product = require('../models/Product');
-const Order = require('../models/Order');
-const User = require('../models/User');
+const products = require('../data/products.json');
 const { protect, adminOnly } = require('../middleware/auth');
 
 const router = express.Router();
 router.use(protect, adminOnly);
 
-router.get('/summary', async (req, res, next) => {
-  try {
-    const [products, customers, orders, revenue, pending, delivered, lowStock] = await Promise.all([
-      Product.countDocuments({ active: true }),
-      User.countDocuments({ role: 'customer' }),
-      Order.countDocuments(),
-      Order.aggregate([{ $match: { status: { $ne: 'Cancelled' } } }, { $group: { _id: null, total: { $sum: '$total' } } }]),
-      Order.countDocuments({ status: 'Pending' }),
-      Order.countDocuments({ status: 'Delivered' }),
-      Product.countDocuments({ active: true, stock: { $lte: 5 } })
-    ]);
-    return res.json({ products, customers, orders, revenue: revenue[0]?.total || 0, pending, delivered, lowStock });
-  } catch (error) {
-    return next(error);
-  }
-});
+router.get('/summary', (req, res) => res.json({
+  products: products.filter(product => product.active).length,
+  customers: 0,
+  orders: 0,
+  revenue: 0,
+  pending: 0,
+  delivered: 0,
+  lowStock: 0,
+  storage: 'file'
+}));
 
 module.exports = router;
