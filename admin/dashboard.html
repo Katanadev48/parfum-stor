@@ -22,6 +22,10 @@
     .admin-table{width:100%;border-collapse:collapse}
     .admin-table th,.admin-table td{text-align:right;padding:13px 10px;border-bottom:1px solid #f0eee9;font-size:12px}
     .admin-table th{color:var(--muted);white-space:nowrap}
+    .order-card{border:1px solid #eeece6;border-radius:9px;padding:16px;margin:12px 0;background:#fff;line-height:1.8}
+    .order-card header{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+    .order-card select{padding:7px;border:1px solid var(--line);border-radius:5px}
+    .order-card a{color:#8a6b14;text-decoration:underline}
     @media(max-width:600px){.admin-shell{padding:16px 12px}.admin-top{align-items:flex-start;flex-direction:column}.admin-grid{gap:8px}.admin-stat{padding:14px}}
   </style>
 </head>
@@ -37,10 +41,15 @@
     <div class="section-heading"><div><p class="eyebrow">CONTROL ROOM</p><h1>لوحة الإدارة</h1></div></div>
     <section class="admin-grid" aria-label="المنتجات">
       <div class="admin-stat"><small>المنتجات المتاحة</small><strong id="statProducts">--</strong></div>
-      <div class="admin-stat"><small>إدارة الطلبات</small><strong>واتساب</strong></div>
+      <div class="admin-stat"><small>حفظ الطلبات</small><strong>Google Sheets</strong></div>
     </section>
     <section class="admin-panel">
-      <p class="notice">الطلبات كتوصل مباشرة لواتساب الإدارة، وما كتتخزنش فالموقع. باش تزيد أو تبدل منتج، عدّل الملف <code>server/data/products.json</code> فالمشروع ثم أعد النشر.</p>
+      <p class="notice">الطلبات كتتحفظ فـGoogle Sheets وكتبان هنا. المنتجات محفوظة فملف <code>server/data/products.json</code>؛ التغييرات كتحتاج إعادة النشر.</p>
+    </section>
+    <section class="admin-panel">
+      <h2>الطلبات</h2>
+      <p id="ordersMessage" class="notice" role="status" aria-live="polite">جاري تحميل الطلبات...</p>
+      <div id="orderRows"></div>
     </section>
     <section class="admin-panel">
       <h2>المنتجات</h2>
@@ -56,11 +65,17 @@
   <script>
     const token = localStorage.getItem('katana-token');
     const dashboardMessage = document.getElementById('dashboardMessage');
+    const ordersMessage = document.getElementById('ordersMessage');
     const money = value => `${Number(value || 0).toLocaleString('fr-MA')} DH`;
 
-    async function request(url) {
+    async function request(url, options = {}) {
       const response = await fetch(url, {
-        headers: { Authorization: `Bearer ${token}` }
+        ...options,
+        headers: {
+          Authorization: `Bearer ${token}`,
+          ...(options.body ? { 'Content-Type': 'application/json' } : {}),
+          ...(options.headers || {})
+        }
       });
       const contentType = response.headers.get('content-type') || '';
       const data = contentType.includes('application/json') ? await response.json() : null;
@@ -72,12 +87,93 @@
       return data;
     }
 
+    async function loadOrders() {
+      try {
+        const orders = await request('/api/orders');
+        const container = document.getElementById('orderRows');
+        container.replaceChildren();
+        if (!orders.length) {
+          ordersMessage.textContent = 'ما كاين حتى طلب دابا.';
+          return;
+        }
+        ordersMessage.textContent = `عدد الطلبات: ${orders.length}`;
+
+        for (const order of orders) {
+          const card = document.createElement('article');
+          card.className = 'order-card';
+          const header = document.createElement('header');
+          const title = document.createElement('strong');
+          const created = new Date(order.createdAt);
+          title.textContent = `${order.orderId} · ${Number.isNaN(created.getTime()) ? '' : created.toLocaleString('ar-MA')}`;
+          const status = document.createElement('select');
+          status.setAttribute('aria-label', `حالة الطلب ${order.orderId}`);
+          for (const [value, label] of [
+            ['New', 'جديد'],
+            ['Contacted', 'تم التواصل'],
+            ['Delivered', 'تم التوصيل'],
+            ['Cancelled', 'ملغى']
+          ]) {
+            const option = document.createElement('option');
+            option.value = value;
+            option.textContent = label;
+            status.append(option);
+          }
+          status.value = order.status;
+          status.onchange = async () => {
+            const previousStatus = order.status;
+            status.disabled = true;
+            try {
+              await request(`/api/orders/${encodeURIComponent(order.orderId)}/status`, {
+                method: 'PUT',
+                body: JSON.stringify({ status: status.value })
+              });
+              order.status = status.value;
+            } catch (error) {
+              ordersMessage.textContent = error.message;
+              status.value = previousStatus;
+            } finally {
+              status.disabled = false;
+            }
+          };
+          header.append(title, status);
+
+          const customer = document.createElement('p');
+          customer.textContent = `${order.customer.name} · ${order.customer.phone} · ${order.customer.city}`;
+          const address = document.createElement('p');
+          address.textContent = `العنوان: ${order.customer.address}`;
+          const phoneLink = document.createElement('a');
+          const phone = order.customer.phone.replace(/\D/g, '');
+          phoneLink.href = `https://wa.me/${phone.startsWith('0') ? `212${phone.slice(1)}` : phone}`;
+          phoneLink.target = '_blank';
+          phoneLink.rel = 'noopener noreferrer';
+          phoneLink.textContent = 'تواصل عبر واتساب';
+          const items = document.createElement('p');
+          items.textContent = order.items.map(item => `${item.name} × ${item.quantity}`).join('، ');
+          const total = document.createElement('strong');
+          total.textContent = `المجموع: ${money(order.total)}`;
+          card.append(header, customer, address, phoneLink, items, total);
+          if (order.customer.notes) {
+            const note = document.createElement('p');
+            note.textContent = `ملاحظة التوصيل: ${order.customer.notes}`;
+            card.append(note);
+          }
+          container.append(card);
+        }
+      } catch (error) {
+        ordersMessage.textContent = error.message;
+        if (error.status === 401 || error.status === 403) {
+          localStorage.removeItem('katana-token');
+          localStorage.removeItem('katana-user');
+          location.href = '/admin/login.html';
+        }
+      }
+    }
+
     async function loadDashboard() {
       if (!token) {
         location.href = '/admin/login.html';
         return;
       }
-
       try {
         const [{ user }, catalog] = await Promise.all([
           request('/api/auth/me'),
@@ -87,7 +183,6 @@
           location.href = '/admin/login.html';
           return;
         }
-
         document.getElementById('statProducts').textContent = catalog.total;
         const rows = document.getElementById('productRows');
         rows.replaceChildren();
@@ -96,23 +191,23 @@
           const cell = row.insertCell();
           cell.colSpan = 4;
           cell.textContent = 'لا توجد منتجات';
-          return;
+        } else {
+          for (const product of catalog.products) {
+            const row = rows.insertRow();
+            row.insertCell().textContent = product.name;
+            row.insertCell().textContent = product.category;
+            row.insertCell().textContent = money(product.price);
+            row.insertCell().textContent = product.stock;
+          }
         }
-        for (const product of catalog.products) {
-          const row = rows.insertRow();
-          row.insertCell().textContent = product.name;
-          row.insertCell().textContent = product.category;
-          row.insertCell().textContent = money(product.price);
-          row.insertCell().textContent = product.stock;
-        }
+        await loadOrders();
       } catch (error) {
+        dashboardMessage.textContent = error.message;
         if (error.status === 401 || error.status === 403) {
           localStorage.removeItem('katana-token');
           localStorage.removeItem('katana-user');
           location.href = '/admin/login.html';
-          return;
         }
-        dashboardMessage.textContent = error.message;
       }
     }
 

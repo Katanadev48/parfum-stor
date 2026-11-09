@@ -24,6 +24,7 @@ app.use(express.static(path.join(__dirname, '..', 'client')));
 app.use('/client', express.static(path.join(__dirname, '..', 'client')));
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/products', require('./routes/products'));
+app.use('/api/orders', require('./routes/orders'));
 app.use('/api/admin', require('./routes/admin'));
 app.get('/api/settings', (req, res) => res.json({
   heroTitle: 'اكتشف عطرك المميز',
@@ -39,7 +40,9 @@ app.post('/api/newsletter', (req, res) => res.status(501).json({
 app.use((error, req, res, next) => {
   if (res.headersSent) return next(error);
   console.error('Unhandled API request error:', error);
-  return res.status(500).json({ message: 'حدث خطأ في الخادم. تحقق من إعدادات الإدارة.' });
+  return res.status(error.status || 500).json({
+    message: error.status ? error.message : 'حدث خطأ في الخادم. حاول مجددًا.'
+  });
 });
 app.get('/health', (req, res) => res.json({
   ok: true,

@@ -10,12 +10,17 @@ router.post('/admin-login', (req, res, next) => {
   const adminEmail = process.env.ADMIN_EMAIL?.trim().toLowerCase();
   const adminPassword = process.env.ADMIN_PASSWORD;
   const jwtSecret = process.env.JWT_SECRET;
-  if (!adminEmail || adminPassword?.length < 12 || jwtSecret?.length < 32) {
+  if (typeof adminEmail !== 'string' || !adminEmail ||
+      typeof adminPassword !== 'string' || adminPassword.length < 12 ||
+      typeof jwtSecret !== 'string' || jwtSecret.length < 32) {
     return next(new Error('Set ADMIN_EMAIL, an ADMIN_PASSWORD of at least 12 characters, and a JWT_SECRET of at least 32 characters'));
   }
 
   const email = typeof req.body?.email === 'string' ? req.body.email.trim().toLowerCase() : '';
   const password = typeof req.body?.password === 'string' ? req.body.password : '';
+  if (email.length > 254 || password.length > 1024) {
+    return res.status(400).json({ message: 'البريد الإلكتروني أو كلمة المرور غير صالحة' });
+  }
   const emailMatches = crypto.timingSafeEqual(digest(email), digest(adminEmail));
   const passwordMatches = crypto.timingSafeEqual(digest(password), digest(adminPassword));
   if (!emailMatches || !passwordMatches) {

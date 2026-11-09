@@ -68,31 +68,67 @@
 
     renderSummary();
 
-    checkoutForm.onsubmit = event => {
+    checkoutForm.onsubmit = async event => {
       event.preventDefault();
       if (!cart.length) return;
 
+      const button = checkoutForm.querySelector('button[type="submit"]');
       const customer = Object.fromEntries(new FormData(checkoutForm));
-      const total = cart.reduce(
-        (sum, item) => sum + (Number(item.price) || 0) * (Number(item.quantity) || 0),
-        0
-      );
-      const lines = [
-        'طلب جديد من KATANA PARFUM',
-        '',
-        ...cart.map(item => `- ${item.name} × ${item.quantity}: ${money(item.price * item.quantity)}`),
-        `المجموع التقديري: ${money(total)}`,
-        '',
-        `الاسم: ${customer.name}`,
-        `الهاتف: ${customer.phone}`,
-        `المدينة: ${customer.city}`,
-        `العنوان: ${customer.address}`
-      ];
-      if (customer.notes.trim()) lines.push(`ملاحظة للتوصيل: ${customer.notes.trim()}`);
+      button.disabled = true;
+      checkoutMessage.textContent = 'جارٍ تسجيل الطلب...';
+      const whatsappWindow = window.open('about:blank', '_blank');
+      if (whatsappWindow) whatsappWindow.opener = null;
 
-      const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(lines.join('\n'))}`;
-      window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
-      checkoutMessage.textContent = 'تأكد من إرسال الرسالة فواتساب باش يتأكد الطلب. الطلبات ما كتتحفظش فالموقع.';
+      try {
+        const response = await fetch('/api/orders', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            items: cart.map(({ product, quantity }) => ({ product, quantity })),
+            customer
+          })
+        });
+        const contentType = response.headers.get('content-type') || '';
+        const order = contentType.includes('application/json') ? await response.json() : null;
+        if (!response.ok) {
+          throw new Error(order?.message || `تعذر تسجيل الطلب (HTTP ${response.status})`);
+        }
+        if (!order?.orderId) throw new Error('استجابة الخادم غير مكتملة. حاول مرة أخرى.');
+
+        const lines = [
+          'طلب جديد من KATANA PARFUM',
+          `رقم الطلب: ${order.orderId}`,
+          '',
+          ...order.items.map(item => `- ${item.name} × ${item.quantity}: ${money(item.price * item.quantity)}`),
+          `المجموع: ${money(order.total)}`,
+          '',
+          `الاسم: ${customer.name}`,
+          `الهاتف: ${customer.phone}`,
+          `المدينة: ${customer.city}`,
+          `العنوان: ${customer.address}`
+        ];
+        if (customer.notes.trim()) lines.push(`ملاحظة التوصيل: ${customer.notes.trim()}`);
+        const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(lines.join('\n'))}`;
+        if (whatsappWindow) whatsappWindow.location.href = whatsappUrl;
+        else {
+          const link = document.createElement('a');
+          link.href = whatsappUrl;
+          link.target = '_blank';
+          link.rel = 'noopener noreferrer';
+          link.textContent = 'اضغط هنا لإرسال الطلب عبر واتساب';
+          checkoutMessage.replaceChildren(document.createTextNode(`تسجل الطلب ${order.orderId}. `), link);
+        }
+
+        localStorage.removeItem('katana-cart');
+        cart = [];
+        renderSummary();
+        checkoutForm.reset();
+        checkoutMessage.insertAdjacentText('beforeend', ` تسجل الطلب ${order.orderId}. تأكد من إرسال رسالة واتساب للتواصل معك.`);
+      } catch (error) {
+        if (whatsappWindow) whatsappWindow.close();
+        checkoutMessage.textContent = error.message;
+        button.disabled = false;
+      }
     };
   </script>
 </body>

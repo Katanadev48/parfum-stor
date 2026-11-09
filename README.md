@@ -1,32 +1,42 @@
 # KATANA PARFUM
 
-A lightweight perfume shop for Morocco. The storefront and product catalog are served by Express/Vercel Functions. The catalog is a project JSON file; customer accounts and MongoDB are not used.
+A lightweight perfume shop for Morocco. Customer accounts and MongoDB are not used. Products live in a project JSON file, while order records are stored in Google Sheets.
 
 ## Run locally
 
 1. Install Node.js 18+ and run `npm install`.
 2. Copy `.env.example` to `.env`.
-3. Set `JWT_SECRET` to a long random secret, and set your private `ADMIN_EMAIL` and `ADMIN_PASSWORD`.
-4. Run `npm start` and open `http://localhost:3000`.
+3. Set a private `ADMIN_EMAIL`, an `ADMIN_PASSWORD` of at least 12 characters, and a random `JWT_SECRET` of at least 32 characters.
+4. Configure the Google Sheets web app below.
+5. Run `npm start` and open `http://localhost:3000`.
 
-The admin login is at `/admin/login.html`. The administrator credentials are read on the server from environment variables. Do not put an admin password in HTML, browser JavaScript, or a public repository.
+The admin login is at `/admin/login.html`. Keep all credentials in server environment variables; never place an administrator password or Google API key in browser JavaScript or commit real values to Git.
 
-## Products and orders
+## Free Google Sheets order storage
 
-Edit `server/data/products.json` to add or change products, then deploy the project. The admin dashboard displays the catalog but cannot save product changes because Vercel's serverless filesystem is not persistent.
+1. The orders spreadsheet is [this Google Sheet](https://docs.google.com/spreadsheets/d/1Fb9dd9Wn8Igy1KScpMMKzZ5UwOwk_yJK6v-_9YwqOJQ/edit). Its ID is already configured as the default in the Apps Script file.
+2. At [script.google.com](https://script.google.com), create a project and replace its `Code.gs` with `google-apps-script/Code.gs`.
+3. In **Project Settings → Script Properties**, add:
+   - `API_KEY`: a long random secret. Use the same value as `GOOGLE_SHEETS_KEY`.
+4. Choose **Deploy → New deployment → Web app**. Set **Execute as** to yourself and **Who has access** to **Anyone**, then deploy and authorize the requested spreadsheet access. The API key in the server request protects the web app actions. Copy its `/exec` URL.
+5. Add these environment variables to Vercel:
+   - `ADMIN_EMAIL`: your administrator Gmail.
+   - `ADMIN_PASSWORD`: a strong private password (12+ characters).
+   - `JWT_SECRET`: a separate long random secret (32+ characters).
+   - `GOOGLE_SHEETS_KEY`: the same secret as Apps Script's `API_KEY`.
+6. Redeploy Vercel. Submit a test order and verify that it appears in the spreadsheet and at `/admin/dashboard.html`.
 
-Customers do not need an account. Checkout requires their name, phone number, city, and delivery address, and opens WhatsApp with the order details. Delivery instructions or a preferred delivery time are optional. The customer must send the prepared WhatsApp message to confirm the order. The site does not store orders or provide order history.
+Orders include the customer's name, phone, city, delivery address, products, total, status, and optional delivery note. Admins can update an order's status in the dashboard. Customers can submit without an account; checkout saves the order first and then opens WhatsApp with the order details.
 
-The WhatsApp business number is configured in `client/checkout.html`, `server/app.js`, and the storefront links. Update all three values if the business number changes.
+Google Apps Script and Google Sheets have usage quotas and require a Google account. This is free for modest order volume, not guaranteed unlimited.
+Keep the spreadsheet private to your administrator account; do not enable public spreadsheet sharing.
 
-## Deploy to Vercel for free
+## Products and WhatsApp
 
-Connect the repository to Vercel with the project root as the Root Directory. Add these environment variables in **Project Settings → Environment Variables**:
+Edit `server/data/products.json` to add or change products, then deploy the project. Vercel's serverless filesystem is not persistent, so the admin dashboard displays products but product changes must be committed and redeployed.
 
-- `ADMIN_EMAIL`: your administrator Gmail address.
-- `ADMIN_PASSWORD`: a strong, private administrator password.
-- `JWT_SECRET`: a separate long, random secret used to sign admin sessions.
+The WhatsApp business number is configured in `client/checkout.html`, `server/app.js`, and the storefront links. Update those values if the business number changes.
 
-Do not commit the real values. Redeploy after setting or changing environment variables. No MongoDB account or connection string is required.
+## Vercel deployment
 
-After deployment, check `/api/products` for the product catalog, then sign in at `/admin/login.html`. API responses and deployment function logs are available in the Vercel project dashboard.
+Connect the repository to Vercel with the project root as its Root Directory. Configure the environment variables above in **Project Settings → Environment Variables** and redeploy after changes. No MongoDB account or connection string is needed.

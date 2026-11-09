@@ -24,6 +24,7 @@ router.get('/', (req, res) => {
       (min !== undefined && (!Number.isFinite(minPrice) || minPrice < 0)) ||
       (max !== undefined && (!Number.isFinite(maxPrice) || maxPrice < 0)) ||
       (minPrice !== undefined && maxPrice !== undefined && minPrice > maxPrice) ||
+      (category !== undefined && typeof category !== 'string') ||
       (gender !== undefined && !['Men', 'Women', 'Unisex'].includes(gender))) {
     return res.status(400).json({ message: 'معايير البحث أو التصفية غير صالحة' });
   }
