@@ -3,30 +3,42 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>لوحة الإدارة | KATANA PARFUM</title>
+  <title>لوحة الإدارة الشاملة | KATANA PARFUM</title>
   <link rel="stylesheet" href="/client/css/style.css">
   <style>
-    body{background:#f7f6f2}
-    .admin-shell{max-width:1100px;min-height:100vh;margin:auto;padding:30px 24px 56px}
-    .admin-top,.admin-panel{border:1px solid #eeece6;border-radius:12px;padding:20px;background:#fff}
+    body{background:#f7f6f2; font-family: Tahoma, sans-serif;}
+    .admin-shell{max-width:1150px;min-height:100vh;margin:auto;padding:30px 24px 56px}
+    .admin-top,.admin-panel{border:1px solid #eeece6;border-radius:12px;padding:20px;background:#fff; box-shadow: 0 4px 12px rgba(0,0,0,0.03)}
     .admin-top{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-bottom:32px}
     .admin-actions{display:flex;gap:10px}
-    .admin-button{display:inline-flex;justify-content:center;align-items:center;min-height:42px;border:1px solid var(--line);border-radius:7px;padding:10px 16px;font-size:12px}
-    .admin-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin:20px 0}
-    .admin-stat{border:1px solid #eeece6;border-radius:10px;padding:18px;background:#fff}
+    .admin-button{display:inline-flex;justify-content:center;align-items:center;min-height:42px;border:1px solid var(--line);border-radius:7px;padding:10px 16px;font-size:12px; cursor: pointer; background: #fff; transition: 0.2s;}
+    .admin-button:hover{background: #f0eee9;}
+    .admin-button.primary{background: #111; color: #fff; border-color: #111;}
+    .admin-button.primary:hover{background: #333;}
+    .admin-button.danger{background: #c93b3b; color: #fff; border-color: #c93b3b;}
+    .admin-button.success{background: #2e7d32; color: #fff; border-color: #2e7d32;}
+    .admin-button.success:hover{background: #1b5e20;}
+    .admin-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin:20px 0}
+    .admin-stat{border:1px solid #eeece6;border-radius:10px;padding:18px;background:#fff; box-shadow: 0 2px 8px rgba(0,0,0,0.02)}
     .admin-stat small{color:var(--muted)}
-    .admin-stat strong{display:block;margin-top:8px;font-size:28px}
-    .admin-panel{margin-top:16px}
+    .admin-stat strong{display:block;margin-top:8px;font-size:24px}
+    .admin-panel{margin-top:20px}
     .notice{line-height:1.9;color:#56524c}
     .admin-table-wrap{overflow-x:auto}
-    .admin-table{width:100%;border-collapse:collapse}
+    .admin-table{width:100%;border-collapse:collapse; margin-top: 10px;}
     .admin-table th,.admin-table td{text-align:right;padding:13px 10px;border-bottom:1px solid #f0eee9;font-size:12px}
     .admin-table th{color:var(--muted);white-space:nowrap}
     .order-card{border:1px solid #eeece6;border-radius:9px;padding:16px;margin:12px 0;background:#fff;line-height:1.8}
     .order-card header{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
     .order-card select{padding:7px;border:1px solid var(--line);border-radius:5px}
-    .order-card a{color:#8a6b14;text-decoration:underline}
-    @media(max-width:600px){.admin-shell{padding:16px 12px}.admin-top{align-items:flex-start;flex-direction:column}.admin-grid{gap:8px}.admin-stat{padding:14px}}
+    .order-card .order-actions-row{display: flex; gap: 8px; margin-top: 10px; align-items: center; flex-wrap: wrap;}
+    .form-row{display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-top: 15px;}
+    .form-group{display: flex; flex-direction: column; gap: 6px;}
+    .form-group label{font-size: 11px; color: #666;}
+    .form-group input{padding: 10px; border: 1px solid #ddd; border-radius: 6px; font-size: 12px;}
+    .actions-cell{display: flex; gap: 6px;}
+    .search-box{width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; margin-bottom: 12px; font-size: 13px;}
+    @media(max-width:768px){.admin-grid{grid-template-columns:1fr;}.admin-shell{padding:16px 12px}.admin-top{align-items:flex-start;flex-direction:column}}
   </style>
 </head>
 <body>
@@ -38,42 +50,97 @@
         <button class="admin-button" id="logoutButton" type="button">تسجيل الخروج</button>
       </div>
     </header>
-    <div class="section-heading"><div><p class="eyebrow">CONTROL ROOM</p><h1>لوحة الإدارة</h1></div></div>
-    <section class="admin-grid" aria-label="المنتجات">
+
+    <div class="section-heading"><div><p class="eyebrow">CONTROL ROOM</p><h1>لوحة الإدارة الشاملة</h1></div></div>
+    
+    <!-- إحصائيات وأرباح -->
+    <section class="admin-grid" aria-label="الإحصائيات والأرباح">
       <div class="admin-stat"><small>المنتجات المتاحة</small><strong id="statProducts">--</strong></div>
-      <div class="admin-stat"><small>حفظ الطلبات</small><strong>Google Sheets</strong></div>
+      <div class="admin-stat"><small>إجمالي الطلبات</small><strong id="statOrdersCount">0</strong></div>
+      <div class="admin-stat"><small>الأرباح المتوقعة / المبيعات</small><strong id="statTotalRevenue" style="color: #2e7d32;">0 DH</strong></div>
     </section>
+
     <section class="admin-panel">
-      <p class="notice">الطلبات كتتحفظ فـGoogle Sheets وكتبان هنا. المنتجات محفوظة فملف <code>server/data/products.json</code>؛ التغييرات كتحتاج إعادة النشر.</p>
+      <p class="notice">الطلبات متصلة بـ Google Sheets وكتبان هنا مباشرة. المنتجات محفوظة في ملف <code>server/data/products.json</code>؛ التغييرات تتطلب إعادة النشر على Vercel.</p>
     </section>
+
+    <!-- قسم إضافة منتج جديد -->
     <section class="admin-panel">
-      <h2>الطلبات</h2>
+      <h2>➕ إضافة منتج جديد (مع الصورة)</h2>
+      <form id="addProductForm">
+        <div class="form-row">
+          <div class="form-group">
+            <label>اسم المنتج</label>
+            <input type="text" id="newProductName" required placeholder="مثال: KATANA ROYAL">
+          </div>
+          <div class="form-group">
+            <label>الفئة</label>
+            <input type="text" id="newProductCategory" required placeholder="Signature Collection">
+          </div>
+          <div class="form-group">
+            <label>السعر (DH)</label>
+            <input type="number" id="newProductPrice" required placeholder="199">
+          </div>
+          <div class="form-group">
+            <label>المخزون</label>
+            <input type="number" id="newProductStock" required value="30">
+          </div>
+        </div>
+        <div class="form-row" style="margin-top: 10px;">
+          <div class="form-group">
+            <label>صورة من الحاسوب (PC)</label>
+            <input type="file" id="newProductFile" accept="image/*">
+          </div>
+          <div class="form-group">
+            <label>أو رابط الصورة (Image URL)</label>
+            <input type="url" id="newProductImageUrl" placeholder="https://example.com/image.jpg">
+          </div>
+        </div>
+        <div style="margin-top: 15px;">
+          <button type="submit" class="admin-button primary">إضافة المنتج للقائمة</button>
+        </div>
+      </form>
+      <p id="addProductMessage" class="notice" style="margin-top: 10px; color: #8a6b14;"></p>
+    </section>
+
+    <!-- قسم الطلبات -->
+    <section class="admin-panel">
+      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+        <h2>📦 الطلبات الواردة</h2>
+        <button class="admin-button success" id="exportOrdersBtn" type="button">📥 تصدير الطلبات (Excel)</button>
+      </div>
       <p id="ordersMessage" class="notice" role="status" aria-live="polite">جاري تحميل الطلبات...</p>
       <div id="orderRows"></div>
     </section>
+
+    <!-- قسم إدارة المنتجات -->
     <section class="admin-panel">
-      <h2>المنتجات</h2>
+      <h2>🛍️ إدارة المنتجات الحالية</h2>
+      <input type="text" id="productSearch" class="search-box" placeholder="🔍 ابحث عن أي منتج بالاسم...">
       <div class="admin-table-wrap">
         <table class="admin-table">
-          <thead><tr><th>المنتج</th><th>الفئة</th><th>السعر</th><th>المخزون</th></tr></thead>
-          <tbody id="productRows"><tr><td colspan="4">جاري التحميل...</td></tr></tbody>
+          <thead><tr><th>المنتج</th><th>الفئة</th><th>السعر (DH)</th><th>المخزون</th><th>الإجراءات</th></tr></thead>
+          <tbody id="productRows"><tr><td colspan="5">جاري التحميل...</td></tr></tbody>
         </table>
       </div>
       <p id="dashboardMessage" role="status" aria-live="polite"></p>
     </section>
   </main>
+
   <script>
     const token = localStorage.getItem('katana-token');
     const dashboardMessage = document.getElementById('dashboardMessage');
     const ordersMessage = document.getElementById('ordersMessage');
     const money = value => `${Number(value || 0).toLocaleString('fr-MA')} DH`;
+    let allOrdersData = [];
+    let allProductsData = [];
 
     async function request(url, options = {}) {
       const response = await fetch(url, {
         ...options,
         headers: {
           Authorization: `Bearer ${token}`,
-          ...(options.body ? { 'Content-Type': 'application/json' } : {}),
+          ...(options.body && typeof options.body === 'string' ? { 'Content-Type': 'application/json' } : {}),
           ...(options.headers || {})
         }
       });
@@ -89,76 +156,8 @@
 
     async function loadOrders() {
       try {
-        const orders = await request('/api/orders');
-        const container = document.getElementById('orderRows');
-        container.replaceChildren();
-        if (!orders.length) {
-          ordersMessage.textContent = 'ما كاين حتى طلب دابا.';
-          return;
-        }
-        ordersMessage.textContent = `عدد الطلبات: ${orders.length}`;
-
-        for (const order of orders) {
-          const card = document.createElement('article');
-          card.className = 'order-card';
-          const header = document.createElement('header');
-          const title = document.createElement('strong');
-          const created = new Date(order.createdAt);
-          title.textContent = `${order.orderId} · ${Number.isNaN(created.getTime()) ? '' : created.toLocaleString('ar-MA')}`;
-          const status = document.createElement('select');
-          status.setAttribute('aria-label', `حالة الطلب ${order.orderId}`);
-          for (const [value, label] of [
-            ['New', 'جديد'],
-            ['Contacted', 'تم التواصل'],
-            ['Delivered', 'تم التوصيل'],
-            ['Cancelled', 'ملغى']
-          ]) {
-            const option = document.createElement('option');
-            option.value = value;
-            option.textContent = label;
-            status.append(option);
-          }
-          status.value = order.status;
-          status.onchange = async () => {
-            const previousStatus = order.status;
-            status.disabled = true;
-            try {
-              await request(`/api/orders/${encodeURIComponent(order.orderId)}/status`, {
-                method: 'PUT',
-                body: JSON.stringify({ status: status.value })
-              });
-              order.status = status.value;
-            } catch (error) {
-              ordersMessage.textContent = error.message;
-              status.value = previousStatus;
-            } finally {
-              status.disabled = false;
-            }
-          };
-          header.append(title, status);
-
-          const customer = document.createElement('p');
-          customer.textContent = `${order.customer.name} · ${order.customer.phone} · ${order.customer.city}`;
-          const address = document.createElement('p');
-          address.textContent = `العنوان: ${order.customer.address}`;
-          const phoneLink = document.createElement('a');
-          const phone = order.customer.phone.replace(/\D/g, '');
-          phoneLink.href = `https://wa.me/${phone.startsWith('0') ? `212${phone.slice(1)}` : phone}`;
-          phoneLink.target = '_blank';
-          phoneLink.rel = 'noopener noreferrer';
-          phoneLink.textContent = 'تواصل عبر واتساب';
-          const items = document.createElement('p');
-          items.textContent = order.items.map(item => `${item.name} × ${item.quantity}`).join('، ');
-          const total = document.createElement('strong');
-          total.textContent = `المجموع: ${money(order.total)}`;
-          card.append(header, customer, address, phoneLink, items, total);
-          if (order.customer.notes) {
-            const note = document.createElement('p');
-            note.textContent = `ملاحظة التوصيل: ${order.customer.notes}`;
-            card.append(note);
-          }
-          container.append(card);
-        }
+        allOrdersData = await request('/api/orders');
+        renderOrders(allOrdersData);
       } catch (error) {
         ordersMessage.textContent = error.message;
         if (error.status === 401 || error.status === 403) {
@@ -166,6 +165,105 @@
           localStorage.removeItem('katana-user');
           location.href = '/admin/login.html';
         }
+      }
+    }
+
+    function renderOrders(orders) {
+      const container = document.getElementById('orderRows');
+      container.replaceChildren();
+      
+      let totalRevenue = 0;
+      orders.forEach(ord => {
+        if(ord.status !== 'Cancelled') {
+          totalRevenue += Number(ord.total || 0);
+        }
+      });
+      document.getElementById('statOrdersCount').textContent = orders.length;
+      document.getElementById('statTotalRevenue').textContent = money(totalRevenue);
+
+      if (!orders.length) {
+        ordersMessage.textContent = 'ما كاين حتى طلب دابا.';
+        return;
+      }
+      ordersMessage.textContent = `عدد الطلبات: ${orders.length}`;
+
+      for (const order of orders) {
+        const card = document.createElement('article');
+        card.className = 'order-card';
+        const header = document.createElement('header');
+        const title = document.createElement('strong');
+        const created = new Date(order.createdAt);
+        title.textContent = `${order.orderId} · ${Number.isNaN(created.getTime()) ? '' : created.toLocaleString('ar-MA')}`;
+        
+        const status = document.createElement('select');
+        status.setAttribute('aria-label', `حالة الطلب ${order.orderId}`);
+        for (const [value, label] of [
+          ['New', 'جديد'],
+          ['Contacted', 'تم التواصل'],
+          ['Delivered', 'تم التوصيل'],
+          ['Cancelled', 'ملغى']
+        ]) {
+          const option = document.createElement('option');
+          option.value = value;
+          option.textContent = label;
+          status.append(option);
+        }
+        status.value = order.status;
+        status.onchange = async () => {
+          const previousStatus = order.status;
+          status.disabled = true;
+          try {
+            await request(`/api/orders/${encodeURIComponent(order.orderId)}/status`, {
+              method: 'PUT',
+              body: JSON.stringify({ status: status.value })
+            });
+            order.status = status.value;
+            renderOrders(allOrdersData);
+          } catch (error) {
+            ordersMessage.textContent = error.message;
+            status.value = previousStatus;
+          } finally {
+            status.disabled = false;
+          }
+        };
+        header.append(title, status);
+
+        const customer = document.createElement('p');
+        customer.textContent = `${order.customer.name} · ${order.customer.phone} · ${order.customer.city}`;
+        const address = document.createElement('p');
+        address.textContent = `العنوان: ${order.customer.address}`;
+        
+        const itemsSummary = order.items.map(item => `${item.name} × ${item.quantity}`).join('، ');
+        const items = document.createElement('p');
+        items.textContent = `المنتجات: ${itemsSummary}`;
+        
+        const total = document.createElement('strong');
+        total.textContent = `المجموع: ${money(order.total)}`;
+
+        const actionsRow = document.createElement('div');
+        actionsRow.className = 'order-actions-row';
+
+        const phoneLink = document.createElement('a');
+        const rawPhone = order.customer.phone.replace(/\D/g, '');
+        const formattedPhone = rawPhone.startsWith('0') ? `212${rawPhone.slice(1)}` : rawPhone;
+        const msgText = encodeURIComponent(`مرحباً سي ${order.customer.name}، تواصلنا معك بخصوص طلبك من KATANA PARFUM (${itemsSummary}) بقيمة ${order.total} درهم. هل أنت مستعد لتأكيد التوصيل؟`);
+        
+        phoneLink.href = `https://wa.me/${formattedPhone}?text=${msgText}`;
+        phoneLink.target = '_blank';
+        phoneLink.rel = 'noopener noreferrer';
+        phoneLink.className = 'admin-button success';
+        phoneLink.style.textDecoration = 'none';
+        phoneLink.textContent = '💬 تواصل واتساب';
+
+        actionsRow.append(phoneLink);
+
+        card.append(header, customer, address, items, total, actionsRow);
+        if (order.customer.notes) {
+          const note = document.createElement('p');
+          note.textContent = `ملاحظة التوصيل: ${order.customer.notes}`;
+          card.append(note);
+        }
+        container.append(card);
       }
     }
 
@@ -184,22 +282,8 @@
           return;
         }
         document.getElementById('statProducts').textContent = catalog.total;
-        const rows = document.getElementById('productRows');
-        rows.replaceChildren();
-        if (!catalog.products.length) {
-          const row = rows.insertRow();
-          const cell = row.insertCell();
-          cell.colSpan = 4;
-          cell.textContent = 'لا توجد منتجات';
-        } else {
-          for (const product of catalog.products) {
-            const row = rows.insertRow();
-            row.insertCell().textContent = product.name;
-            row.insertCell().textContent = product.category;
-            row.insertCell().textContent = money(product.price);
-            row.insertCell().textContent = product.stock;
-          }
-        }
+        allProductsData = catalog.products;
+        renderProducts(allProductsData);
         await loadOrders();
       } catch (error) {
         dashboardMessage.textContent = error.message;
@@ -211,11 +295,142 @@
       }
     }
 
+    function renderProducts(products) {
+      const rows = document.getElementById('productRows');
+      rows.replaceChildren();
+      if (!products.length) {
+        const row = rows.insertRow();
+        const cell = row.insertCell();
+        cell.colSpan = 5;
+        cell.textContent = 'لا توجد منتجات مطابقة للبحث';
+        return;
+      }
+      for (const product of products) {
+        const row = rows.insertRow();
+        
+        const nameCell = row.insertCell();
+        nameCell.innerHTML = `<input type="text" value="${product.name}" id="name-${product.id || product.slug}" style="padding:5px; width:130px; border:1px solid #ddd; border-radius:4px;">`;
+        
+        const catCell = row.insertCell();
+        catCell.innerHTML = `<input type="text" value="${product.category}" id="cat-${product.id || product.slug}" style="padding:5px; width:110px; border:1px solid #ddd; border-radius:4px;">`;
+        
+        const priceCell = row.insertCell();
+        priceCell.innerHTML = `<input type="number" value="${product.price}" id="price-${product.id || product.slug}" style="padding:5px; width:70px; border:1px solid #ddd; border-radius:4px;">`;
+        
+        const stockCell = row.insertCell();
+        stockCell.innerHTML = `<input type="number" value="${product.stock}" id="stock-${product.id || product.slug}" style="padding:5px; width:60px; border:1px solid #ddd; border-radius:4px;">`;
+        
+        const actionsCell = row.insertCell();
+        actionsCell.className = 'actions-cell';
+        
+        const saveBtn = document.createElement('button');
+        saveBtn.className = 'admin-button';
+        saveBtn.textContent = 'حفظ';
+        saveBtn.onclick = async () => {
+          const updatedName = document.getElementById(`name-${product.id || product.slug}`).value;
+          const updatedCat = document.getElementById(`cat-${product.id || product.slug}`).value;
+          const updatedPrice = Number(document.getElementById(`price-${product.id || product.slug}`).value);
+          const updatedStock = Number(document.getElementById(`stock-${product.id || product.slug}`).value);
+          
+          try {
+            await request(`/api/products/${product.id || product.slug}`, {
+              method: 'PUT',
+              body: JSON.stringify({ name: updatedName, category: updatedCat, price: updatedPrice, stock: updatedStock })
+            });
+            alert('تم تحديث المنتج بنجاح!');
+            loadDashboard();
+          } catch (err) {
+            alert('خطأ أثناء التحديث: ' + err.message);
+          }
+        };
+
+        const deleteBtn = document.createElement('button');
+        deleteBtn.className = 'admin-button danger';
+        deleteBtn.textContent = 'حذف';
+        deleteBtn.onclick = async () => {
+          if (confirm(`واش بغيتي تحذف هاد المنتج: ${product.name}?`)) {
+            try {
+              await request(`/api/products/${product.id || product.slug}`, {
+                method: 'DELETE'
+              });
+              alert('تم حذف المنتج بنجاح!');
+              loadDashboard();
+            } catch (err) {
+              alert('خطأ أثناء الحذف: ' + err.message);
+            }
+          }
+        };
+
+        actionsCell.append(saveBtn, deleteBtn);
+      }
+    }
+
+    document.getElementById('productSearch').oninput = (e) => {
+      const term = e.target.value.toLowerCase();
+      const filtered = allProductsData.filter(p => p.name.toLowerCase().includes(term) || p.category.toLowerCase().includes(term));
+      renderProducts(filtered);
+    };
+
+    document.getElementById('exportOrdersBtn').onclick = () => {
+      if(!allOrdersData.length) {
+        alert('لا توجد طلبات لتصديرها!');
+        return;
+      }
+      let csvContent = "data:text/csv;charset=utf-8,\uFEFF";
+      csvContent += "OrderID,Date,CustomerName,Phone,City,Address,Total,Status\n";
+      
+      allOrdersData.forEach(o => {
+        const row = [o.orderId, o.createdAt, `"${o.customer.name}"`, `"${o.customer.phone}"`, `"${o.customer.city}"`, `"${o.customer.address}"`, o.total, o.status];
+        csvContent += row.join(",") + "\n";
+      });
+
+      const encodedUri = encodeURI(csvContent);
+      const link = document.createElement("a");
+      link.setAttribute("href", encodedUri);
+      link.setAttribute("download", "katana_orders.csv");
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    };
+
+    document.getElementById('addProductForm').onsubmit = async (e) => {
+      e.preventDefault();
+      const msg = document.getElementById('addProductMessage');
+      const name = document.getElementById('newProductName`.value;
+      const category = document.getElementById('newProductCategory').value;
+      const price = Number(document.getElementById('newProductPrice').value);
+      const stock = Number(document.getElementById('newProductStock').value);
+      const imageUrlInput = document.getElementById('newProductImageUrl').value;
+      const fileInput = document.getElementById('newProductFile').files[0];
+
+      let image = imageUrlInput;
+      if (fileInput) {
+        image = await new Promise((resolve) => {
+          const reader = new FileReader();
+          reader.onload = (uploadEvent) => resolve(uploadEvent.target.result);
+          reader.readAsDataURL(fileInput);
+        });
+      }
+
+      try {
+        await request('/api/products', {
+          method: 'POST',
+          body: JSON.stringify({ name, category, price, stock, image })
+        });
+        msg.textContent = 'تم إضافة المنتج بنجاح! (قم بإعادة النشر على Vercel لتثبيت التغييرات).';
+        document.getElementById('addProductForm').reset();
+        loadDashboard();
+      } catch (err) {
+        msg.textContent = 'خطأ: ' + err.message;
+      }
+    };
+
     document.getElementById('logoutButton').onclick = () => {
       localStorage.removeItem('katana-token');
       localStorage.removeItem('katana-user');
       location.href = '/admin/login.html';
     };
+
     loadDashboard();
   </script>
 </body>
