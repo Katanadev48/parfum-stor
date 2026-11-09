@@ -1,1 +1,105 @@
-<!doctype html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>إتمام الطلب | KATANA PARFUM</title><link rel="stylesheet" href="/css/style.css"></head><body><div class="section" style="max-width:800px"><a class="brand" href="/"><span class="brand-mark">K</span><span>KATANA <small>PARFUM</small></span></a><div class="section-heading" style="margin-top:60px"><div><p class="eyebrow">CHECKOUT</p><h2>أكمل طلبك</h2></div></div><form id="checkoutForm" class="finder-form" style="color:#111"><label>الاسم الكامل<input name="name" required></label><label>الهاتف<input name="phone" required></label><label>البريد الإلكتروني<input name="email" type="email"></label><label>المدينة<input name="city" required></label><label style="grid-column:1/-1">العنوان<input name="address" required></label><label style="grid-column:1/-1">ملاحظات إضافية<textarea name="notes" rows="4"></textarea></label><button class="button button-gold" type="submit">تأكيد الطلب بالدفع عند الاستلام <span>←</span></button></form><p id="checkoutMessage"></p></div><script>const cart=JSON.parse(localStorage.getItem('katana-cart')||'[]');document.getElementById('checkoutForm').onsubmit=async e=>{e.preventDefault();if(!cart.length)return document.getElementById('checkoutMessage').textContent='السلة فارغة';const data=Object.fromEntries(new FormData(e.target));try{const token=localStorage.getItem('katana-token');const r=await fetch('/api/orders',{method:'POST',headers:{'Content-Type':'application/json',...(token?{Authorization:'Bearer '+token}:{})},body:JSON.stringify({items:cart,customer:data})});const o=await r.json();if(!r.ok)throw Error(o.message);localStorage.removeItem('katana-cart');document.getElementById('checkoutMessage').textContent='تم تأكيد طلبك: '+o.orderId;e.target.reset()}catch(err){document.getElementById('checkoutMessage').textContent=err.message}}</script></body></html>
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>إتمام الطلب | KATANA PARFUM</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <div class="section" style="max-width:800px">
+    <a class="brand" href="/">
+      <span class="brand-mark">K</span>
+      <span>KATANA <small>PARFUM</small></span>
+    </a>
+    <div class="section-heading" style="margin-top:60px">
+      <div><p class="eyebrow">CHECKOUT</p><h2>أكمل طلبك</h2></div>
+    </div>
+    <section id="orderSummary" class="empty-state" aria-live="polite"></section>
+    <form id="checkoutForm" class="finder-form" style="color:#111">
+      <label>الاسم الكامل<input name="name" autocomplete="name" maxlength="80" required></label>
+      <label>الهاتف<input name="phone" type="tel" autocomplete="tel" maxlength="30" required></label>
+      <label>البريد الإلكتروني<input name="email" type="email" autocomplete="email" maxlength="254"></label>
+      <label>المدينة<input name="city" autocomplete="address-level2" maxlength="100" required></label>
+      <label style="grid-column:1/-1">العنوان<input name="address" autocomplete="street-address" maxlength="300" required></label>
+      <label style="grid-column:1/-1">ملاحظات إضافية<textarea name="notes" rows="4" maxlength="1000"></textarea></label>
+      <button class="button button-gold" type="submit">تأكيد الطلب بالدفع عند الاستلام <span>←</span></button>
+    </form>
+    <p id="checkoutMessage" role="status" aria-live="polite"></p>
+  </div>
+  <script>
+    const summary = document.getElementById('orderSummary');
+    const checkoutForm = document.getElementById('checkoutForm');
+    const checkoutMessage = document.getElementById('checkoutMessage');
+    const money = amount => `${Number(amount || 0).toLocaleString('fr-MA')} DH`;
+
+    function renderSummary(items) {
+      summary.replaceChildren();
+      if (!items.length) {
+        summary.textContent = 'سلتك فارغة حاليًا.';
+        checkoutForm.querySelector('button[type="submit"]').disabled = true;
+        return;
+      }
+
+      const heading = document.createElement('h3');
+      heading.textContent = 'ملخص سلتك';
+      const list = document.createElement('ul');
+      let total = 0;
+      for (const item of items) {
+        const quantity = Number(item.quantity) || 0;
+        const price = Number(item.price) || 0;
+        total += price * quantity;
+        const row = document.createElement('li');
+        row.textContent = `${item.name || 'عطر'} × ${quantity} — ${money(price * quantity)}`;
+        list.append(row);
+      }
+      const subtotal = document.createElement('strong');
+      subtotal.textContent = `المجموع التقديري: ${money(total)}`;
+      summary.append(heading, list, subtotal);
+    }
+
+    let cart;
+    try {
+      cart = JSON.parse(localStorage.getItem('katana-cart') || '[]');
+      if (!Array.isArray(cart)) cart = [];
+    } catch {
+      cart = [];
+    }
+    renderSummary(cart);
+
+    checkoutForm.onsubmit = async event => {
+      event.preventDefault();
+      const button = checkoutForm.querySelector('button[type="submit"]');
+      if (!cart.length) return;
+      button.disabled = true;
+      checkoutMessage.textContent = 'جارٍ تأكيد طلبك...';
+      try {
+        const token = localStorage.getItem('katana-token');
+        const response = await fetch('/api/orders', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            ...(token ? { Authorization: `Bearer ${token}` } : {})
+          },
+          body: JSON.stringify({
+            items: cart.map(({ product, quantity }) => ({ product, quantity })),
+            customer: Object.fromEntries(new FormData(checkoutForm))
+          })
+        });
+        const order = await response.json();
+        if (!response.ok) throw new Error(order.message || 'تعذر تأكيد الطلب');
+        localStorage.removeItem('katana-cart');
+        cart = [];
+        renderSummary(cart);
+        checkoutForm.reset();
+        checkoutMessage.textContent = `تم تأكيد طلبك بنجاح: ${order.orderId}`;
+      } catch (error) {
+        checkoutMessage.textContent = error instanceof TypeError
+          ? 'تعذر الاتصال بالخادم. حاول مرة أخرى لاحقًا.'
+          : error.message;
+        button.disabled = false;
+      }
+    };
+  </script>
+</body>
+</html>
