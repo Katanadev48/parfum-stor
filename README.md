@@ -26,6 +26,16 @@ Public endpoints include `GET /api/products`, `GET /api/products/:id`, `GET /api
 
 Deploy the Node process to a VPS or Node hosting provider, use a managed MongoDB database, set all environment variables in the provider dashboard, configure Cloudinary and SMTP, point `katanaparfum.cam` to the host, and enforce HTTPS. Serve the same Express process behind a reverse proxy such as Nginx.
 
+### Vercel
+
+The Vercel deployment serves the same static pages and sends `/api/*` requests to the Express application in `api/[...path].js`. Configure these environment variables in the Vercel project before deploying:
+
+- `MONGODB_URI`: a reachable MongoDB connection string (for example, MongoDB Atlas).
+- `JWT_SECRET`: a unique, randomly generated secret with at least 32 characters.
+- `CLIENT_URL`: the deployed site origin, such as `https://katanaparfum.vercel.app`.
+
+Create the first administrator locally against that same database with `npm run create-admin`. Then redeploy the Vercel project. Admin sign-in is available at `/admin/login.html`; `/admin/dashboard.html` and its product-management actions require an account with the `admin` role. Check `/api/products` and `/api/auth/login` after deployment to confirm the API function is active. The products endpoint returns an empty list until the connected database contains products; add them from the admin dashboard or seed demo products locally against that database.
+
 ### Current LiteSpeed hosting
 
 If the domain document root is the project root, upload `.htaccess`, `account.html`, `login.html`, `client/`, and `admin/`. The `.htaccess` file redirects root account/auth pages to the working `/client/` pages and maps root asset paths. Static pages will work immediately, but `/api/*` requires running `server/server.js` with Node.js, a reachable MongoDB database, and the variables in `.env`. On cPanel use **Setup Node.js App** and configure the domain as a reverse proxy to the Node app; do not expect LiteSpeed static hosting alone to execute Express or MongoDB code.
