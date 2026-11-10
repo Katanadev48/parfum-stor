@@ -64,45 +64,6 @@
       <p class="notice">الطلبات متصلة بـ Google Sheets وكتبان هنا مباشرة. المنتجات محفوظة في ملف <code>server/data/products.json</code>؛ التغييرات تتطلب إعادة النشر على Vercel.</p>
     </section>
 
-    <!-- قسم إضافة منتج جديد -->
-    <section class="admin-panel">
-      <h2>➕ إضافة منتج جديد (مع الصورة)</h2>
-      <form id="addProductForm">
-        <div class="form-row">
-          <div class="form-group">
-            <label>اسم المنتج</label>
-            <input type="text" id="newProductName" required placeholder="مثال: KATANA ROYAL">
-          </div>
-          <div class="form-group">
-            <label>الفئة</label>
-            <input type="text" id="newProductCategory" required placeholder="Signature Collection">
-          </div>
-          <div class="form-group">
-            <label>السعر (DH)</label>
-            <input type="number" id="newProductPrice" required placeholder="199">
-          </div>
-          <div class="form-group">
-            <label>المخزون</label>
-            <input type="number" id="newProductStock" required value="30">
-          </div>
-        </div>
-        <div class="form-row" style="margin-top: 10px;">
-          <div class="form-group">
-            <label>صورة من الحاسوب (PC)</label>
-            <input type="file" id="newProductFile" accept="image/*">
-          </div>
-          <div class="form-group">
-            <label>أو رابط الصورة (Image URL)</label>
-            <input type="url" id="newProductImageUrl" placeholder="https://example.com/image.jpg">
-          </div>
-        </div>
-        <div style="margin-top: 15px;">
-          <button type="submit" class="admin-button primary">إضافة المنتج للقائمة</button>
-        </div>
-      </form>
-      <p id="addProductMessage" class="notice" style="margin-top: 10px; color: #8a6b14;"></p>
-    </section>
-
     <!-- قسم الطلبات -->
     <section class="admin-panel">
       <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
@@ -115,12 +76,13 @@
 
     <!-- قسم إدارة المنتجات -->
     <section class="admin-panel">
-      <h2>🛍️ إدارة المنتجات الحالية</h2>
+      <h2>🛍️ المنتجات الحالية</h2>
+      <p class="notice">المنتجات للعرض فقط. لتعديلها، حدّث <code>server/data/products.json</code> ثم أعد نشر المشروع.</p>
       <input type="text" id="productSearch" class="search-box" placeholder="🔍 ابحث عن أي منتج بالاسم...">
       <div class="admin-table-wrap">
         <table class="admin-table">
-          <thead><tr><th>المنتج</th><th>الفئة</th><th>السعر (DH)</th><th>المخزون</th><th>الإجراءات</th></tr></thead>
-          <tbody id="productRows"><tr><td colspan="5">جاري التحميل...</td></tr></tbody>
+          <thead><tr><th>المنتج</th><th>الفئة</th><th>السعر (DH)</th><th>المخزون</th></tr></thead>
+          <tbody id="productRows"><tr><td colspan="4">جاري التحميل...</td></tr></tbody>
         </table>
       </div>
       <p id="dashboardMessage" role="status" aria-live="polite"></p>
@@ -301,67 +263,16 @@
       if (!products.length) {
         const row = rows.insertRow();
         const cell = row.insertCell();
-        cell.colSpan = 5;
+        cell.colSpan = 4;
         cell.textContent = 'لا توجد منتجات مطابقة للبحث';
         return;
       }
       for (const product of products) {
         const row = rows.insertRow();
-        
-        const nameCell = row.insertCell();
-        nameCell.innerHTML = `<input type="text" value="${product.name}" id="name-${product.id || product.slug}" style="padding:5px; width:130px; border:1px solid #ddd; border-radius:4px;">`;
-        
-        const catCell = row.insertCell();
-        catCell.innerHTML = `<input type="text" value="${product.category}" id="cat-${product.id || product.slug}" style="padding:5px; width:110px; border:1px solid #ddd; border-radius:4px;">`;
-        
-        const priceCell = row.insertCell();
-        priceCell.innerHTML = `<input type="number" value="${product.price}" id="price-${product.id || product.slug}" style="padding:5px; width:70px; border:1px solid #ddd; border-radius:4px;">`;
-        
-        const stockCell = row.insertCell();
-        stockCell.innerHTML = `<input type="number" value="${product.stock}" id="stock-${product.id || product.slug}" style="padding:5px; width:60px; border:1px solid #ddd; border-radius:4px;">`;
-        
-        const actionsCell = row.insertCell();
-        actionsCell.className = 'actions-cell';
-        
-        const saveBtn = document.createElement('button');
-        saveBtn.className = 'admin-button';
-        saveBtn.textContent = 'حفظ';
-        saveBtn.onclick = async () => {
-          const updatedName = document.getElementById(`name-${product.id || product.slug}`).value;
-          const updatedCat = document.getElementById(`cat-${product.id || product.slug}`).value;
-          const updatedPrice = Number(document.getElementById(`price-${product.id || product.slug}`).value);
-          const updatedStock = Number(document.getElementById(`stock-${product.id || product.slug}`).value);
-          
-          try {
-            await request(`/api/products/${product.id || product.slug}`, {
-              method: 'PUT',
-              body: JSON.stringify({ name: updatedName, category: updatedCat, price: updatedPrice, stock: updatedStock })
-            });
-            alert('تم تحديث المنتج بنجاح!');
-            loadDashboard();
-          } catch (err) {
-            alert('خطأ أثناء التحديث: ' + err.message);
-          }
-        };
-
-        const deleteBtn = document.createElement('button');
-        deleteBtn.className = 'admin-button danger';
-        deleteBtn.textContent = 'حذف';
-        deleteBtn.onclick = async () => {
-          if (confirm(`واش بغيتي تحذف هاد المنتج: ${product.name}?`)) {
-            try {
-              await request(`/api/products/${product.id || product.slug}`, {
-                method: 'DELETE'
-              });
-              alert('تم حذف المنتج بنجاح!');
-              loadDashboard();
-            } catch (err) {
-              alert('خطأ أثناء الحذف: ' + err.message);
-            }
-          }
-        };
-
-        actionsCell.append(saveBtn, deleteBtn);
+        for (const value of [product.name, product.category, money(product.price), product.stock]) {
+          const cell = row.insertCell();
+          cell.textContent = value == null ? '' : String(value);
+        }
       }
     }
 
@@ -376,53 +287,27 @@
         alert('لا توجد طلبات لتصديرها!');
         return;
       }
-      let csvContent = "data:text/csv;charset=utf-8,\uFEFF";
-      csvContent += "OrderID,Date,CustomerName,Phone,City,Address,Total,Status\n";
-      
-      allOrdersData.forEach(o => {
-        const row = [o.orderId, o.createdAt, `"${o.customer.name}"`, `"${o.customer.phone}"`, `"${o.customer.city}"`, `"${o.customer.address}"`, o.total, o.status];
-        csvContent += row.join(",") + "\n";
-      });
-
-      const encodedUri = encodeURI(csvContent);
-      const link = document.createElement("a");
-      link.setAttribute("href", encodedUri);
-      link.setAttribute("download", "katana_orders.csv");
+      const csvCell = value => {
+        let text = String(value ?? '');
+        if (/^[=+\-@\t\r]/.test(text)) text = `'${text}`;
+        return `"${text.replace(/"/g, '""')}"`;
+      };
+      const rows = [
+        ['OrderID', 'Date', 'CustomerName', 'Phone', 'City', 'Address', 'Total', 'Status'],
+        ...allOrdersData.map(order => [
+          order.orderId, order.createdAt, order.customer.name, order.customer.phone,
+          order.customer.city, order.customer.address, order.total, order.status
+        ])
+      ];
+      const csv = `\uFEFF${rows.map(row => row.map(csvCell).join(',')).join('\r\n')}`;
+      const url = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }));
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = 'katana_orders.csv';
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-    };
-
-    document.getElementById('addProductForm').onsubmit = async (e) => {
-      e.preventDefault();
-      const msg = document.getElementById('addProductMessage');
-      const name = document.getElementById('newProductName`.value;
-      const category = document.getElementById('newProductCategory').value;
-      const price = Number(document.getElementById('newProductPrice').value);
-      const stock = Number(document.getElementById('newProductStock').value);
-      const imageUrlInput = document.getElementById('newProductImageUrl').value;
-      const fileInput = document.getElementById('newProductFile').files[0];
-
-      let image = imageUrlInput;
-      if (fileInput) {
-        image = await new Promise((resolve) => {
-          const reader = new FileReader();
-          reader.onload = (uploadEvent) => resolve(uploadEvent.target.result);
-          reader.readAsDataURL(fileInput);
-        });
-      }
-
-      try {
-        await request('/api/products', {
-          method: 'POST',
-          body: JSON.stringify({ name, category, price, stock, image })
-        });
-        msg.textContent = 'تم إضافة المنتج بنجاح! (قم بإعادة النشر على Vercel لتثبيت التغييرات).';
-        document.getElementById('addProductForm').reset();
-        loadDashboard();
-      } catch (err) {
-        msg.textContent = 'خطأ: ' + err.message;
-      }
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
     };
 
     document.getElementById('logoutButton').onclick = () => {
