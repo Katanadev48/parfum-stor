@@ -193,6 +193,8 @@ document.querySelectorAll('.filter-chip').forEach(button => {
 $('#filterToggle').onclick = () => $('#filters').classList.toggle('open');
 $('#cartBtn').onclick = () => $('#cartDrawer').classList.add('open');
 $('#closeCart').onclick = () => $('#cartDrawer').classList.remove('open');
+if (location.hash === '#cart') $('#cartDrawer').classList.add('open');
+if (location.hash === '#cart') $('#cartDrawer').classList.add('open');
 $('#checkoutBtn').onclick = () => { location.href = '/checkout.html'; };
 $('#finderHero').onclick = () => { location.href = '#finder'; };
 $('#findBtn').onclick = () => {
