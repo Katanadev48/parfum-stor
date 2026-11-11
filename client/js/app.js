@@ -14,7 +14,8 @@ const state = {
   query: '',
   gender: '',
   sort: 'newest',
-  min: '',   max: ''
+  min: '',
+  max: ''
 };
 const $ = selector => document.querySelector(selector);
 const api = async url => {
@@ -51,7 +52,8 @@ async function loadSettings() {
 async function loadProducts() {
   const params = new URLSearchParams({ sort: state.sort, limit: '100' });
   if (state.query) params.set('q', state.query);
-  if (state.gender) params.set('gender', state.gender);   if (state.min) params.set('min', state.min);
+  if (state.gender) params.set('gender', state.gender);
+  if (state.min) params.set('min', state.min);
   if (state.max) params.set('max', state.max);
 
   try {
@@ -97,7 +99,11 @@ async function openProduct(id) {
 
 function addCart(product) {
   const item = state.cart.find(entry => entry.product === product._id);
-  if (item && item.quantity >= 20) {     toast('الحد الأقصى لهذا العطر هو 20 قطعة');     return;   }   if (item) item.quantity += 1;
+  if (item && item.quantity >= 20) {
+    toast('الحد الأقصى لهذا العطر هو 20 قطعة');
+    return;
+  }
+  if (item) item.quantity += 1;
   else {
     state.cart.push({
       product: product._id,
@@ -135,6 +141,10 @@ function renderCart() {
 function changeQty(id, delta) {
   const item = state.cart.find(entry => entry.product === id);
   if (!item) return;
+  if (delta > 0 && item.quantity >= 20) {
+    toast('الحد الأقصى لهذا العطر هو 20 قطعة');
+    return;
+  }
   item.quantity += delta;
   if (item.quantity < 1) state.cart = state.cart.filter(entry => entry.product !== id);
   saveCart();
@@ -179,7 +189,8 @@ $('#sortSelect').onchange = event => {
   loadProducts();
 };
 $('#maxPrice').onchange = event => {
-  state.min = '';   state.max = event.target.value;
+  state.min = '';
+  state.max = event.target.value;
   loadProducts();
 };
 document.querySelectorAll('.filter-chip').forEach(button => {
@@ -190,17 +201,48 @@ document.querySelectorAll('.filter-chip').forEach(button => {
     loadProducts();
   };
 });
-$('#filterToggle').onclick = () => {   const isOpen = $('#filters').classList.toggle('open');   $('#filterToggle').setAttribute('aria-expanded', String(isOpen)); };
+$('#filterToggle').onclick = () => {
+  const isOpen = $('#filters').classList.toggle('open');
+  $('#filterToggle').setAttribute('aria-expanded', String(isOpen));
+};
 $('#cartBtn').onclick = () => $('#cartDrawer').classList.add('open');
 $('#closeCart').onclick = () => $('#cartDrawer').classList.remove('open');
-
-
-if (location.hash === '#cart') $('#cartDrawer').classList.add('open'); $('#checkoutBtn').onclick = () => { location.href = '/checkout.html'; };
-$('#finderHero').onclick = () => { location.href = '#finder'; }; $('#searchBtn').onclick = () => {   $('#shop').scrollIntoView({ behavior: 'smooth' });   $('#searchInput').focus({ preventScroll: true }); }; $('#langBtn').onclick = () => toast('النسخة الفرنسية غير متاحة حاليًا'); $('#menuBtn').onclick = () => {   const isOpen = document.querySelector('.site-header nav').classList.toggle('open');   $('#menuBtn').setAttribute('aria-expanded', String(isOpen)); }; document.querySelectorAll('.site-header nav a').forEach(link => {   link.onclick = () => {     document.querySelector('.site-header nav').classList.remove('open');     $('#menuBtn').setAttribute('aria-expanded', 'false');   }; }); document.querySelector('.modal-backdrop').onclick = () => { $('#productModal').hidden = true; }; document.addEventListener('keydown', event => {   if (event.key === 'Escape') {     $('#productModal').hidden = true;     document.querySelector('.site-header nav').classList.remove('open');     $('#menuBtn').setAttribute('aria-expanded', 'false');     $('#cartDrawer').classList.remove('open');   } });
+if (location.hash === '#cart') $('#cartDrawer').classList.add('open');
+$('#checkoutBtn').onclick = () => { location.href = '/checkout.html'; };
+$('#finderHero').onclick = () => { location.href = '#finder'; };
+$('#searchBtn').onclick = () => {
+  $('#shop').scrollIntoView({ behavior: 'smooth' });
+  $('#searchInput').focus({ preventScroll: true });
+};
+$('#langBtn').onclick = () => toast('النسخة الفرنسية غير متاحة حاليًا');
+$('#menuBtn').onclick = () => {
+  const isOpen = document.querySelector('.site-header nav').classList.toggle('open');
+  $('#menuBtn').setAttribute('aria-expanded', String(isOpen));
+};
+document.querySelectorAll('.site-header nav a').forEach(link => {
+  link.onclick = () => {
+    document.querySelector('.site-header nav').classList.remove('open');
+    $('#menuBtn').setAttribute('aria-expanded', 'false');
+  };
+});
+document.querySelector('.modal-backdrop').onclick = () => { $('#productModal').hidden = true; };
+document.addEventListener('keydown', event => {
+  if (event.key === 'Escape') {
+    $('#productModal').hidden = true;
+    document.querySelector('.site-header nav').classList.remove('open');
+    $('#menuBtn').setAttribute('aria-expanded', 'false');
+    $('#cartDrawer').classList.remove('open');
+  }
+});
 $('#findBtn').onclick = () => {
   state.query = $('#finderStyle').value;
   state.gender = $('#finderGender').value;
-  const budget = $('#finderBudget').value;   state.min = budget === '100-200' ? '100' : budget === '200-300' ? '200' : budget === '300+' ? '300' : '';   state.max = budget === 'under-100' ? '100'     : budget === '100-200' ? '200'       : budget === '200-300' ? '300' : '';   $('#maxPrice').value = state.max;
+  const budget = $('#finderBudget').value;
+  state.min = budget === '100-200' ? '100' : budget === '200-300' ? '200' : budget === '300+' ? '300' : '';
+  state.max = budget === 'under-100' ? '100'
+    : budget === '100-200' ? '200'
+      : budget === '200-300' ? '300' : '';
+  $('#maxPrice').value = state.max;
   location.href = '#shop';
   loadProducts();
 };

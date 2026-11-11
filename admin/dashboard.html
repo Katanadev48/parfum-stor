@@ -101,7 +101,7 @@
       const response = await fetch(url, {
         ...options,
         headers: {
-          Authorization: `Bearer ${token}`,
+          ...(token ? { Authorization: 'Bearer ' + token } : {}),
           ...(options.body && typeof options.body === 'string' ? { 'Content-Type': 'application/json' } : {}),
           ...(options.headers || {})
         }
